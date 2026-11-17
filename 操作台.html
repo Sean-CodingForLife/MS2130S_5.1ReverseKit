@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MS2130S_5.1ReverseKit 操作台</title>
+<link rel="stylesheet" href="design-tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(900px 500px at 15% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 65%),
+      radial-gradient(800px 600px at 95% 0%, color-mix(in srgb, var(--info) 7%, transparent), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: var(--fs-body-lg);
+    line-height: var(--lh-base);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-20);
+    padding: var(--space-18) var(--space-28) var(--space-14);
+    border-bottom: 1px solid var(--line);
+    background: var(--header-glass);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .brand { display: flex; align-items: baseline; gap: var(--space-12); flex-wrap: wrap; }
+  .brand h1 { margin: 0; font-family: var(--font-display); font-size: var(--fs-display-sm); letter-spacing: var(--tracking-tight); font-weight: var(--fw-semibold); line-height: var(--lh-tight); }
+  .brand h1 span { color: var(--accent); font-weight: var(--fw-medium); }
+  .brand p { margin: 0; color: var(--text-muted); font-size: var(--fs-caption); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; line-height: var(--lh-ui); }
+  .pills { display: flex; gap: var(--space-8); flex-wrap: wrap; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); flex: none; }
+
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(360px, 1fr);
+    gap: var(--space-22);
+    padding: var(--space-22) var(--space-28) var(--space-36);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .col { display: flex; flex-direction: column; gap: var(--space-16); min-width: 0; overflow-y: auto; overflow-x: hidden; padding-right: var(--space-4); scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .col::-webkit-scrollbar { width: 8px; }
+  .col::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--radius-control); }
+  .col::-webkit-scrollbar-track { background: transparent; }
+  .col > * { flex: 0 0 auto; }
+  .field { display: flex; gap: var(--space-8); align-items: center; flex-wrap: wrap; }
+  .field-unit { color: var(--text-muted); font-size: var(--fs-caption); line-height: var(--lh-ui); }
+  input[type=number] { width: 92px; }
+
+  .chips { display: flex; gap: var(--space-6); flex-wrap: wrap; }
+
+  .row { display: flex; gap: var(--space-10); align-items: center; flex-wrap: wrap; margin-top: var(--space-10); }
+  .grow { flex: 1 1 220px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius-control); overflow: hidden; }
+  .seg button { border: 0; background: var(--surface-inset); color: var(--text-muted); padding: var(--space-7) var(--space-14); font-family: var(--font-ui); font-size: var(--fs-body); font-weight: var(--fw-medium); line-height: var(--lh-ui); cursor: pointer; }
+  .seg button.on { background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); }
+  .seg button + button { border-left: 1px solid var(--line); }
+
+  .device-card { padding: var(--space-14) var(--space-18); }
+  .dev-head { display: flex; align-items: center; gap: var(--space-13); }
+  .dev-icon {
+    width: 42px; height: 42px; border-radius: var(--radius-control); flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: var(--fw-medium); letter-spacing: var(--tracking-label);
+    background: var(--info-soft); color: var(--info);
+    border: 1px solid var(--info-line);
+  }
+  .device-card.on .dev-icon { background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+  .dev-text { display: flex; flex-direction: column; min-width: 0; }
+  .dev-text strong { font-size: var(--fs-body-lg); font-weight: var(--fw-semibold); line-height: var(--lh-ui); }
+  .dev-text span { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--fs-small); line-height: var(--lh-ui); }
+  .dev-state { margin-left: auto; font-family: var(--font-mono); font-size: var(--fs-small); line-height: var(--lh-ui); }
+  .device-card.on .dev-state { color: var(--accent); border-color: var(--accent-line); }
+  .device-card.off .dev-state { color: var(--text-danger); border-color: color-mix(in srgb, var(--danger) 32%, transparent); }
+  .dev-note { margin: var(--space-9) 0 0; color: var(--text-muted); font-size: var(--fs-small); line-height: var(--lh-ui); }
+  .device-card.on .dev-note { color: var(--text-info); }
+
+  .map { margin-top: var(--space-12); border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--surface-inset); padding: var(--space-10) var(--space-12); }
+  .map-row { display: grid; grid-template-columns: 64px repeat(6, minmax(0, 1fr)); gap: var(--space-6); align-items: center; }
+  .map-row + .map-midrow { margin-top: var(--space-6); }
+  .map-label { color: var(--text-muted); font-size: var(--fs-caption); font-family: var(--font-mono); letter-spacing: var(--tracking-label); }
+  .map-midrow { display: grid; grid-template-columns: 64px repeat(6, minmax(0, 1fr)); gap: var(--space-6); align-items: center; margin-top: var(--space-5); }
+  .map-midrow .px { text-align: center; color: var(--text-dim); font-size: var(--fs-caption); font-family: var(--font-mono); }
+  .map-midrow .px.sw { color: var(--warn); }
+  .ch {
+    text-align: center; padding: var(--space-5) var(--space-2); border-radius: var(--radius-control); font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: var(--fw-medium); line-height: var(--lh-ui);
+    border: 1px solid var(--line); color: var(--text-label); background: var(--surface-tint);
+  }
+  .ch.sw { border-color: color-mix(in srgb, var(--warn) 38%, transparent); color: var(--warn); background: var(--warn-soft); }
+
+  .fw-detail {
+    display: flex; align-items: center; gap: var(--space-10); flex-wrap: wrap;
+    margin-top: var(--space-8); padding: var(--space-8) var(--space-10); border-radius: var(--radius-control);
+    background: var(--surface-tint); border: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: var(--fs-small); line-height: var(--lh-ui); color: var(--text-muted);
+  }
+  .fw-sha { color: var(--text-code); }
+
+  .lint-panel {
+    margin-top: var(--space-8); padding: var(--space-8) var(--space-10); border-radius: var(--radius-control);
+    border: 1px dashed var(--line); color: var(--text-muted); font-size: var(--fs-small); line-height: var(--lh-ui);
+  }
+  .lint-panel.ok { border-style: solid; border-color: color-mix(in srgb, var(--accent) 38%, transparent); color: var(--text-ok); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .lint-panel.bad { border-style: solid; border-color: color-mix(in srgb, var(--danger) 40%, transparent); color: var(--text-danger-strong); background: color-mix(in srgb, var(--danger) 6%, transparent); white-space: pre-wrap; font-family: var(--font-mono); }
+  .lint-panel.run { border-style: solid; border-color: var(--warn-line); color: var(--warn); }
+
+  .env-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--space-8); margin-top: var(--space-10); }
+  .env-tile {
+    border: 1px solid var(--line); border-radius: var(--radius-control); padding: var(--space-8) var(--space-10);
+    background: var(--surface-tint); min-width: 0;
+  }
+  .env-tile .top { display: flex; align-items: center; gap: var(--space-7); }
+  .env-tile .dot { width: 7px; height: 7px; }
+  .env-tile .dot.ok { background: var(--accent); box-shadow: var(--shadow-glow); }
+  .env-tile .dot.bad { background: var(--danger); }
+  .env-tile .nm { font-size: var(--fs-small); line-height: var(--lh-ui); color: var(--text); overflow-wrap: anywhere; }
+  .env-tile .dt { margin-top: var(--space-4); color: var(--text-muted); font-family: var(--font-mono); font-size: var(--fs-caption); line-height: var(--lh-ui); overflow-wrap: anywhere; }
+
+  .doc-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-8); margin-top: var(--space-10); }
+  .doc-grid button {
+    text-align: left; border: 1px solid var(--line); background: var(--surface-inset); color: var(--text);
+    border-radius: var(--radius-control); padding: var(--space-9) var(--space-11); font-family: var(--font-ui); font-size: var(--fs-body); font-weight: var(--fw-medium); line-height: var(--lh-ui); cursor: pointer;
+  }
+  .doc-grid button span { display: block; color: var(--text-muted); font-size: var(--fs-caption); line-height: var(--lh-ui); margin-top: var(--space-2); }
+  .doc-grid button:hover { border-color: var(--accent-dim); }
+
+  .run-list { margin-top: var(--space-10); display: flex; flex-direction: column; gap: var(--space-8); max-height: 320px; overflow: auto; }
+  .run-item { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-6) var(--space-10); align-items: center; border: 1px solid var(--line); background: var(--surface-inset); border-radius: var(--radius-control); padding: var(--space-8) var(--space-10); }
+  .run-title { font-size: var(--fs-body); font-weight: var(--fw-medium); line-height: var(--lh-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .run-subline { grid-column: 1 / -1; font-family: var(--font-mono); font-size: var(--fs-caption); line-height: var(--lh-ui); color: var(--text-muted); display: flex; justify-content: space-between; gap: var(--space-8); }
+  .run-actions { display: flex; gap: var(--space-6); }
+
+  .console {
+    position: relative;
+    display: flex; flex-direction: column;
+    border: 1px solid var(--line); border-radius: var(--radius-panel);
+    background: var(--surface-console); overflow: hidden; min-height: 0;
+  }
+  .console[data-state="running"] { border-color: var(--accent-line); }
+  .console[data-state="ok"] { border-color: var(--accent-line-strong); }
+  .console[data-state="bad"] { border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
+  .console-head {
+    display: flex; align-items: center; gap: var(--space-8);
+    padding: var(--space-11) var(--space-14); border-bottom: 1px solid var(--line); background: var(--surface-inset);
+  }
+  .console-head strong { font-size: var(--fs-body); font-weight: var(--fw-semibold); line-height: var(--lh-ui); flex: none; }
+  .console-head strong::before {
+    content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    margin-right: var(--space-7); vertical-align: middle; background: var(--text-muted);
+  }
+  .console[data-state="ok"] .console-head strong::before { background: var(--accent); }
+  .console[data-state="bad"] .console-head strong::before { background: var(--danger); }
+  .console[data-state="running"] .console-head strong::before {
+    background: var(--accent);
+    animation: ds-breathe-core var(--dur-breathe) var(--ease-breathe) infinite;
+  }
+  .console-head .job { color: var(--accent); font-family: var(--font-mono); font-size: var(--fs-small); line-height: var(--lh-ui); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .next {
+    padding: var(--space-12) var(--space-14) var(--space-11);
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+  .next[data-state="warn"] { background: var(--warn-soft); }
+  .next[data-state="bad"] { background: color-mix(in srgb, var(--danger) 7%, transparent); }
+  .next[data-state="ok"] { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+  .next[data-state="run"] { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  .next-k { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); color: var(--text-muted); font-family: var(--font-mono); font-size: var(--fs-caption); letter-spacing: var(--tracking-label); line-height: var(--lh-ui); }
+  .next-k span:last-child { color: var(--text-dim); letter-spacing: var(--tracking-normal); }
+  .next-k span:first-child::before {
+    content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+    margin-right: var(--space-7); vertical-align: middle; background: var(--text-muted);
+  }
+  .next[data-state="warn"] .next-k span:first-child::before { background: var(--warn); }
+  .next[data-state="bad"] .next-k span:first-child::before { background: var(--danger); }
+  .next[data-state="run"] .next-k span:first-child::before { background: var(--accent); }
+  .next[data-state="ok"] .next-k span:first-child::before {
+    background: var(--accent);
+    animation: ds-breathe-core var(--dur-breathe) var(--ease-breathe) infinite;
+  }
+  .next-t { margin: var(--space-5) 0 0; font-size: var(--fs-body); font-weight: var(--fw-semibold); line-height: var(--lh-ui); color: var(--text); }
+  .next-d { margin: var(--space-3) 0 0; color: var(--text-muted); font-size: var(--fs-small); line-height: var(--lh-base); }
+  .next-go { margin-top: var(--space-8); }
+
+  .run { padding: var(--space-13) var(--space-14) var(--space-11); border-bottom: 1px solid var(--line); background: var(--surface-run); }
+  .run-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-10); }
+  .run-phase { font-size: var(--fs-title-sm); font-weight: var(--fw-semibold); line-height: var(--lh-ui); color: var(--text); }
+  .run-time { font-family: var(--font-mono); font-size: var(--fs-small); line-height: var(--lh-ui); color: var(--text-muted); }
+  .bar { margin-top: var(--space-9); height: 7px; border-radius: var(--radius-cell); background: var(--surface-bar); border: 1px solid var(--line); overflow: hidden; }
+  .bar-fill { height: 100%; width: 0%; border-radius: var(--radius-cell); background: var(--accent); transition: width var(--dur-350) ease; }
+  .bar-fill.indet {
+    width: 100%; background: repeating-linear-gradient(90deg, var(--accent-line) 0 12px, var(--accent-soft) 12px 24px);
+    animation: slide var(--dur-1100) linear infinite; background-size: 200% 100%;
+  }
+  .bar-fill.ok { background: var(--accent); }
+  .bar-fill.bad { background: var(--danger); }
+  @keyframes slide { from { background-position: 0 0; } to { background-position: -48px 0; } }
+  @keyframes ds-breathe-core {
+    0%, 100% { opacity: .62; box-shadow: 0 0 0 0 transparent; }
+    50% { opacity: 1; box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent); }
+  }
+  .run-sub { margin-top: var(--space-7); color: var(--text-muted); font-size: var(--fs-small); line-height: var(--lh-ui); font-family: var(--font-mono); }
+
+  .signal { padding: var(--space-10) var(--space-14) var(--space-12); border-bottom: 1px solid var(--line); background: var(--surface-signal); }
+  .signal-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-8); }
+  .signal-head strong { font-size: var(--fs-small); font-weight: var(--fw-semibold); line-height: var(--lh-ui); }
+  .signal-head span { font-family: var(--font-mono); font-size: var(--fs-caption); line-height: var(--lh-ui); color: var(--text-muted); }
+  .sig-bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-7); margin-top: var(--space-9); height: 118px; }
+  .sig-ch { display: flex; flex-direction: column; justify-content: flex-end; gap: var(--space-4); min-width: 0; }
+  .sig-track { position: relative; flex: 1; border: 1px solid var(--line); border-radius: var(--radius-cell); background: repeating-linear-gradient(to top, transparent 0 11px, color-mix(in srgb, var(--white) 4.5%, transparent) 11px 12px), var(--surface-inset); overflow: hidden; display: flex; align-items: flex-end; }
+  .sig-fill { width: 100%; height: 0%; border-radius: var(--radius-cell); background: var(--c); box-shadow: var(--shadow-signal) var(--c); transition: height var(--dur-180) linear; }
+  .sig-name { text-align: center; font-family: var(--font-mono); font-size: var(--fs-micro); line-height: var(--lh-tight); color: var(--text-muted); }
+  .sig-val { text-align: center; font-family: var(--font-mono); font-size: var(--fs-micro); line-height: var(--lh-tight); color: var(--text-dim); }
+  .flashmap { display: none; grid-template-columns: repeat(16, 1fr); gap: var(--space-3); margin-top: var(--space-9); }
+  .flashmap.on { display: grid; }
+  .fm-cell { aspect-ratio: 1; border-radius: var(--radius-cell); background: var(--surface-cell); border: 1px solid var(--line-soft); }
+  .fm-cell.done { background: var(--accent-cell); border-color: var(--accent-cell-line); }
+  .fm-cell.cur { background: var(--warn); border-color: var(--warn); animation: pulse var(--dur-800) infinite alternate; }
+  @keyframes pulse { from { opacity: .55; } to { opacity: 1; } }
+
+  #log {
+    margin: 0; padding: var(--space-14); overflow: auto;
+    min-height: 170px; max-height: 280px; flex: 1;
+    font-family: var(--font-mono); font-size: var(--fs-small); line-height: var(--lh-code);
+    color: var(--text-code); white-space: pre-wrap; overflow-wrap: anywhere;
+  }
+  #log .placeholder { color: var(--text-placeholder); }
+
+  .action-hint { margin: var(--space-7) 0 0; color: var(--text-muted); font-size: var(--fs-small); line-height: var(--lh-ui); }
+  .action-hint.bad { color: var(--text-danger); }
+  .action-hint.ok { color: var(--text-ok); }
+  .ds-btn--primary:disabled { background: var(--surface-2); color: var(--text-muted); border-color: var(--line); box-shadow: none; }
+  .row[hidden] { display: none; }
+  #wavPick[hidden] { display: none; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(20px);
+    background: var(--surface-toast); border: 1px solid var(--line); color: var(--text);
+    padding: var(--space-10) var(--space-16); border-radius: var(--radius-panel); font-size: var(--fs-body); line-height: var(--lh-ui);
+    opacity: 0; pointer-events: none; transition: var(--dur-200); z-index: 30;
+    max-width: min(560px, 80vw);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.bad { border-color: color-mix(in srgb, var(--danger) 45%, transparent); color: var(--text-danger-strong); }
+
+  dialog .row { margin-top: var(--space-14); justify-content: flex-end; }
+  dialog input { width: 100%; margin-top: var(--space-8); }
+
+  #diffDialog { width: min(780px, 94vw); }
+  .diff-pick { display: flex; gap: var(--space-10); flex-wrap: wrap; margin-top: var(--space-10); }
+  .diff-pick select { flex: 1; min-width: 240px; }
+  .diff-map { display: grid; grid-template-columns: repeat(16, 1fr); gap: var(--space-3); margin-top: var(--space-14); }
+  .diff-cell { aspect-ratio: 1.35; border-radius: var(--radius-cell); background: var(--surface-diff); border: 1px solid var(--line-accent); }
+  .diff-cell.diff { background: var(--warn-cell); border-color: var(--warn-cell-line); }
+  .diff-stat { margin-top: var(--space-10); font-family: var(--font-mono); font-size: var(--fs-small); color: var(--text-muted); line-height: var(--lh-code); }
+
+  #verifyDialog { width: min(580px, 94vw); }
+  .verify-list { margin-top: var(--space-12); display: flex; flex-direction: column; gap: var(--space-8); }
+  .verify-item { display: flex; gap: var(--space-10); align-items: flex-start; padding: var(--space-9) var(--space-10); border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--surface-inset); }
+  .verify-item .vdot { width: 9px; height: 9px; border-radius: 50%; margin-top: var(--space-4); flex: none; }
+  .verify-item.ok .vdot { background: var(--accent); }
+  .verify-item.bad .vdot { background: var(--danger); }
+  .verify-item.skip .vdot { background: var(--text-muted); }
+  .verify-item .vt { font-size: var(--fs-body); line-height: var(--lh-ui); }
+  .verify-item .vd { font-family: var(--font-mono); font-size: var(--fs-caption); line-height: var(--lh-ui); color: var(--text-muted); margin-top: var(--space-2); overflow-wrap: anywhere; }
+
+  #recoverDialog { width: min(660px, 94vw); }
+  .rec-step { display: grid; grid-template-columns: 28px 1fr; gap: var(--space-10); padding: var(--space-10) 0; border-bottom: 1px dashed var(--line); }
+  .rec-step .n { width: 24px; height: 24px; border-radius: var(--radius-control); border: 1px solid var(--warn); color: var(--warn); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: var(--fw-medium); line-height: var(--lh-none); }
+  .rec-step b { display: block; font-size: var(--fs-body); font-weight: var(--fw-semibold); line-height: var(--lh-ui); margin-bottom: var(--space-3); }
+  .rec-step p { margin: 0; font-size: var(--fs-small); line-height: var(--lh-relaxed); }
+  .rec-warn { margin-top: var(--space-12); padding: var(--space-10) var(--space-12); border-radius: var(--radius-control); border: 1px solid var(--warn-line); background: var(--warn-soft); color: var(--text-warn); font-size: var(--fs-small); line-height: var(--lh-base); }
+
+  #pillDevice { cursor: pointer; }
+
+  .guide-btn {
+    flex: none;
+    display: inline-flex; align-items: center; gap: var(--space-8);
+    padding: var(--space-8) var(--space-16); border-radius: var(--radius-control);
+    border: 1px solid var(--accent-line-strong);
+    background: var(--accent-soft);
+    color: var(--accent); font-size: var(--fs-body); font-weight: var(--fw-semibold); line-height: var(--lh-ui);
+    font-family: var(--font-ui); cursor: pointer; transition: var(--dur-180);
+  }
+  .guide-btn:hover { background: var(--accent-soft-2); border-color: var(--accent); }
+  .guide-btn .gq {
+    width: 17px; height: 17px; border-radius: var(--radius-control);
+    border: 1px solid currentColor; display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: var(--fs-caption); font-weight: var(--fw-medium); font-family: var(--font-mono); line-height: var(--lh-none);
+  }
+
+  #guideDialog {
+    width: min(780px, 94vw);
+    max-height: 88vh;
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius-dialog);
+  }
+  #guideDialog[open] { display: flex; flex-direction: column; }
+  #guideDialog:not([open]) { display: none; }
+  .guide-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-16);
+    padding: var(--space-18) var(--space-24) var(--space-14);
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--surface-3), var(--surface-dialog));
+  }
+  .guide-head h3 { margin: 0 0 var(--space-3); font-size: var(--fs-title); font-weight: var(--fw-semibold); letter-spacing: var(--tracking-tight); line-height: var(--lh-tight); }
+  .guide-head p { margin: 0; color: var(--text-muted); font-size: var(--fs-small); line-height: var(--lh-ui); }
+  .guide-x {
+    flex: none; width: 30px; height: 30px; border-radius: var(--radius-control);
+    border: 1px solid var(--line); background: transparent;
+    color: var(--text-muted); font-size: var(--fs-title); font-weight: var(--fw-regular); line-height: var(--lh-none); cursor: pointer;
+  }
+  .guide-x:hover { color: var(--text); border-color: var(--accent-dim); }
+  .guide-body { padding: var(--space-4) var(--space-24) var(--space-20); overflow: auto; flex: 1; }
+  .g-sec { padding: var(--space-14) 0 var(--space-4); border-bottom: 1px solid var(--line-faint); }
+  .g-sec:last-child { border-bottom: 0; }
+  .g-sec h4 {
+    margin: var(--space-6) 0 var(--space-8); font-size: var(--fs-body-lg); color: var(--accent); font-weight: var(--fw-semibold);
+    letter-spacing: var(--tracking-normal); line-height: var(--lh-ui);
+  }
+  .g-sec h4 .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; margin-right: var(--space-7); border-radius: var(--radius-control);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); color: var(--accent);
+    font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: var(--fw-medium);
+  }
+  .g-sec ul { margin: 0; padding-left: var(--space-18); }
+  .g-sec li { margin: var(--space-5) 0; color: var(--text-muted); font-size: var(--fs-body); line-height: var(--lh-relaxed); }
+  .g-sec li strong { color: var(--text); font-weight: var(--fw-semibold); }
+  .g-sec li code {
+    color: var(--accent); font-family: var(--font-mono); font-size: var(--fs-small);
+    padding: var(--space-1) var(--space-4); border-radius: var(--radius-control); background: color-mix(in srgb, var(--accent) 7%, transparent);
+  }
+  .g-note {
+    margin: var(--space-9) 0 var(--space-3); padding: var(--space-8) var(--space-11); border-radius: var(--radius-control);
+    border-left: 2px solid var(--warn);
+    background: var(--warn-soft); color: var(--text-warn-dim); font-size: var(--fs-small); line-height: var(--lh-base);
+  }
+  .g-note strong { color: var(--warn); }
+  .g-table { margin-top: var(--space-4); }
+  .guide-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-12);
+    padding: var(--space-13) var(--space-24); border-top: 1px solid var(--line);
+    background: var(--surface-inset);
+  }
+  .guide-foot .tip { color: var(--text-muted); font-size: var(--fs-small); line-height: var(--lh-ui); }
+
+
+  .run-body { max-height: 52vh; overflow: auto; font-family: var(--font-mono); font-size: var(--fs-small); line-height: var(--lh-code); white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-code); margin-top: var(--space-10); }
+
+
+  @media (max-width: 1080px) {
+    html, body { height: auto; overflow: auto; }
+    main { display: block; overflow: visible; }
+    .col { overflow: visible; padding-right: 0; }
+    .console { position: static; height: auto; min-height: 0; }
+    header { align-items: flex-start; flex-direction: column; }
+  }
+  @media (max-width: 640px) {
+    header { padding: var(--space-14) var(--space-16); gap: var(--space-10); }
+    main { padding: var(--space-14) var(--space-16) var(--space-24); gap: var(--space-14); }
+    .card-head.ds-card-head { flex-wrap: wrap; align-items: flex-start; row-gap: var(--space-4); }
+    .sig-bars { height: 96px; }
+    .console-head .job { display: none; }
+    .device-card .dev-head { flex-wrap: wrap; }
+    .device-card .dev-state { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bar-fill.indet, .fm-cell.cur, .console[data-state="running"] .console-head strong::before,
+    .next[data-state="ok"] .next-k span:first-child::before { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div>
+      <h1>MS2130S<span>_5.1</span>ReverseKit</h1>
+      <p>操作台 · 录制 / 修通道 / 固件 / 证据</p>
+    </div>
+    <div class="pills">
+      <span class="pill ds-pill is-live" id="pillServer" title="本地服务"><i class="dot ds-pill__dot"></i><span>服务</span></span>
+      <span class="pill ds-pill is-live" id="pillDevice" title="采集卡"><i class="dot ds-pill__dot"></i><span>设备检测中</span></span>
+      <span class="pill ds-pill" id="pillPython" title="Python 3"><i class="dot ds-pill__dot"></i><span>Python</span></span>
+      <span class="pill ds-pill" id="pillNumpy" title="取证脚本依赖"><i class="dot ds-pill__dot"></i><span>numpy</span></span>
+      <span class="pill ds-pill" id="pillFfmpeg" title="通道重排依赖"><i class="dot ds-pill__dot"></i><span>ffmpeg</span></span>
+    </div>
+  </div>
+  <button class="guide-btn" id="btnGuide"><span class="gq">?</span>操作指南</button>
+</header>
+
+<main>
+  <div class="col">
+
+    <section class="card ds-card ds-card--pad device-card" id="deviceCard">
+      <div class="ds-step-kicker"><span class="ds-tag ds-tag--sm is-current">第一步</span><span>接卡确认</span></div>
+      <div class="dev-head">
+        <div class="dev-icon">USB</div>
+        <div class="dev-text">
+          <strong id="devName">检测中…</strong>
+          <span id="devId">—</span>
+        </div>
+        <span class="dev-state ds-tag ds-tag--lg is-neutral" id="devState">—</span>
+      </div>
+      <p class="dev-note" id="devNote">读取设备状态…</p>
+    </section>
+
+    <section class="card ds-card ds-card--pad" id="recordCard">
+      <div class="card-head ds-card-head"><div class="ds-card-title"><span class="ds-tag ds-tag--sm is-current">第二步</span><h2>录制 5.1</h2></div><span class="hint" id="recFmt"></span></div>
+      <p class="note ds-card-note">选时长直接录，录完在下面修通道，不用命令行。</p>
+      <div class="field">
+        <div class="chips" id="secChips"></div>
+        <input class="ds-input" type="number" id="sec" title="录制秒数">
+        <span class="field-unit">秒</span>
+      </div>
+      <div class="row">
+        <input class="grow ds-input" id="recOut" placeholder="输出路径（留空 = captures/recordings，自动时间戳）">
+        <button class="primary ds-btn ds-btn--primary" id="btnRecord">一键录制</button>
+      </div>
+      <p class="action-hint" id="recordHint">正在读取采集卡状态…</p>
+    </section>
+
+    <section class="card ds-card ds-card--pad" id="fixCard">
+      <div class="card-head ds-card-head"><div class="ds-card-title"><span class="ds-tag ds-tag--sm is-current">第三步</span><h2>修通道</h2></div><span class="hint">交换 c2 / c3</span></div>
+      <p class="note ds-card-note">卡输出 <code id="mapRawText">FL, FR, LFE, FC, BL, BR</code>，标准是 <code id="mapFixedText">FL, FR, FC, LFE, BL, BR</code>。WAV 输出 <code>_fixed.wav</code>，视频输出 <code>_fixed.mkv</code>。</p>
+      <div class="map">
+        <div class="map-row" data-role="raw">
+          <span class="map-label">卡输出</span>
+          <span class="ch">FL</span><span class="ch">FR</span><span class="ch sw">LFE</span><span class="ch sw">FC</span><span class="ch">BL</span><span class="ch">BR</span>
+        </div>
+        <div class="map-midrow">
+          <span class="map-label">声道位</span>
+          <span class="px">c0</span><span class="px">c1</span><span class="px sw">c2 ⇄ c3</span><span class="px sw">c3 ⇄ c2</span><span class="px">c4</span><span class="px">c5</span>
+        </div>
+        <div class="map-row" data-role="fixed">
+          <span class="map-label">标准</span>
+          <span class="ch">FL</span><span class="ch">FR</span><span class="ch sw">FC</span><span class="ch sw">LFE</span><span class="ch">BL</span><span class="ch">BR</span>
+        </div>
+      </div>
+      <div class="row" style="margin-top:var(--space-10)">
+        <div class="seg" id="fixKind">
+          <button class="on" data-kind="wav">WAV</button>
+          <button data-kind="video">视频</button>
+        </div>
+        <input class="grow ds-input" id="fixPath" placeholder="工作区内绝对路径，或从下面选一段">
+      </div>
+      <div class="row">
+        <select class="grow ds-input" id="wavPick"><option value="">从 captures 里选…</option></select>
+        <button class="primary ds-btn ds-btn--primary" id="btnFix">一键修通道</button>
+      </div>
+      <p class="action-hint" id="fixHint">WAV 可从 captures 里选；视频请填工作区内的绝对路径。</p>
+    </section>
+
+    <section class="card ds-card ds-card--pad" id="fwCard">
+      <div class="card-head ds-card-head"><h2>固件</h2><span class="hint">刷写前必须 lint + 快照</span></div>
+      <p class="note ds-card-note">只允许刷 <code>release/</code> 与 <code>experiments/</code>。<code>danger/</code> 里的变砖固件不会出现在可刷列表。</p>
+      <div class="row" style="margin-top:0">
+        <select class="grow ds-input" id="fwPick"></select>
+      </div>
+      <div class="fw-detail">
+        <span class="ds-tag ds-tag--sm ds-tag--outline is-neutral" id="fwTag">—</span>
+        <span class="fw-sha" id="fwSha">SHA —</span>
+        <span id="fwSize">—</span>
+      </div>
+      <div class="lint-panel" id="lintPanel">当前固件尚未做刷前检查</div>
+      <div class="row">
+        <span class="ds-step-group"><span class="ds-tag ds-tag--sm is-current">第四步</span><button class="ghost ds-btn ds-btn--ghost" id="btnLint">刷前检查</button></span>
+        <span class="ds-step-group"><span class="ds-tag ds-tag--sm is-current">第五步</span><button class="ghost ds-btn ds-btn--ghost" id="btnSnapshot">读回快照</button></span>
+      </div>
+      <div class="row">
+        <span class="ds-step-group"><span class="ds-tag ds-tag--sm is-current">第六步</span><button class="danger ds-btn ds-btn--danger" id="btnFlash">安全刷写</button></span>
+        <span class="ds-step-group"><span class="ds-tag ds-tag--sm is-current">第七步</span><button class="ghost ds-btn ds-btn--ghost" id="btnVerify">刷后验收</button></span>
+        <span class="ds-step-group"><span class="ds-tag ds-tag--sm is-neutral">辅助</span><button class="ghost ds-btn ds-btn--ghost" id="btnDiff">固件对比</button></span>
+      </div>
+      <p class="action-hint" id="flashHint">先做刷前检查，检查通过后“安全刷写”才可用。</p>
+    </section>
+
+  </div>
+
+  <div class="col">
+    <aside class="console" id="console" data-state="idle">
+      <div class="console-head">
+        <strong>运行看板</strong>
+        <span class="job" id="jobName">待命</span>
+        <button class="ghost ds-btn ds-btn--ghost ds-btn--sm" id="btnClear">清空</button>
+        <button class="ghost ds-btn ds-btn--ghost ds-btn--sm" id="btnStop" disabled>停止</button>
+      </div>
+      <div class="next" id="nextStep" data-state="idle" aria-live="polite">
+        <div class="next-k"><span>下一步</span><span id="nextState">读取状态</span></div>
+        <p class="next-t" id="nextTitle">正在读取服务状态…</p>
+        <p class="next-d" id="nextBody">设备、检查和任务结果会决定这里的建议。</p>
+        <button class="ghost ds-btn ds-btn--ghost ds-btn--sm next-go" id="nextGo">定位</button>
+      </div>
+      <div class="run">
+        <div class="run-top">
+          <span class="run-phase" id="runPhase">待命</span>
+          <span class="run-time" id="runTime">—</span>
+        </div>
+        <div class="bar"><div class="bar-fill" id="runBar"></div></div>
+        <div class="run-sub" id="runSub">选择左侧操作开始</div>
+      </div>
+      <div class="signal">
+        <div class="signal-head"><strong>实时信号</strong><span id="sigNote">待命</span></div>
+        <div class="sig-bars" id="sigBars"></div>
+        <div class="flashmap" id="flashMap"></div>
+      </div>
+      <pre id="log"><span class="placeholder">操作日志会出现在这里。</span></pre>
+    </aside>
+
+    <section class="card ds-card ds-card--pad" id="runsCard">
+      <div class="card-head ds-card-head"><h2>实验记录</h2><span class="hint">运行记录与证据包</span></div>
+      <div class="run-list" id="runList"><div class="run-empty ds-empty">还没有实验记录。做一次录制、检查或刷写就会生成。</div></div>
+      <div class="row"><button class="ghost ds-btn ds-btn--ghost" id="btnRuns">刷新记录</button></div>
+    </section>
+
+    <section class="card ds-card ds-card--pad" id="envCard">
+      <div class="card-head ds-card-head"><h2>环境</h2><span class="hint">依赖与固件</span></div>
+      <div class="row" style="margin-top:0">
+        <button class="ghost ds-btn ds-btn--ghost" id="btnEnv">重新自检</button>
+        <button class="ghost ds-btn ds-btn--ghost" id="btnRegress">回归自检</button>
+      </div>
+      <div class="env-grid" id="envList"></div>
+    </section>
+
+    <section class="card ds-card ds-card--pad" id="docCard">
+      <div class="card-head ds-card-head"><h2>文档</h2><span class="hint">按索引打开</span></div>
+      <div class="doc-grid" id="docGrid"></div>
+      <div class="row">
+        <button class="ghost ds-btn ds-btn--ghost" id="btnRecover">救砖流程</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<dialog class="ds-dialog" id="diffDialog">
+  <h3>固件差异</h3>
+  <p>按 1 KB 块比较。橙色块表示字节不同，绿色表示相同。</p>
+  <div class="diff-pick">
+    <select class="ds-input" id="diffA"></select>
+    <select class="ds-input" id="diffB"></select>
+  </div>
+  <div class="diff-map" id="diffMap"></div>
+  <div class="diff-stat" id="diffStat">选两个固件开始对比</div>
+  <div class="row">
+    <button class="ghost ds-btn ds-btn--ghost" id="diffClose">关闭</button>
+    <button class="ds-btn ds-btn--primary" id="diffGo">开始对比</button>
+  </div>
+</dialog>
+
+<dialog class="ds-dialog" id="verifyDialog">
+  <h3>刷后验收</h3>
+  <p id="verifyHead">正在枚举设备并录 5 秒…</p>
+  <div class="verify-list" id="verifyList"></div>
+  <div class="row">
+    <button class="ghost ds-btn ds-btn--ghost" id="verifyClose">关闭</button>
+  </div>
+</dialog>
+
+<dialog class="ds-dialog" id="recoverDialog">
+  <h3>救砖流程</h3>
+  <p>只在设备还能以 <code id="recoverUsbIdA">USB ID</code> 枚举时有效。先读 <code>docs/05-变砖与救砖.md</code> 全文。</p>
+  <div class="rec-step">
+    <span class="n">1</span>
+    <div><b>先确认还能枚举</b><p>拔卡身、断电 10 秒再插 USB 3。设备管理器里应出现 <code id="recoverUsbIdB">USB ID</code>。如果只剩未知设备或 DFU，先不要写入。</p></div>
+  </div>
+  <div class="rec-step">
+    <span class="n">2</span>
+    <div><b>准备 Linux 或 WSL2 直通</b><p>救砖走 Linux usbfs，需要把 USB 设备直通给 Linux。Windows 侧的 hidapi 刷写工具在变砖态通常认不到设备。</p></div>
+  </div>
+  <div class="rec-step">
+    <span class="n">3</span>
+    <div><b>先读回，再写</b><p>能读就先 <code>ms213x_flash -r</code> 留一份当前镜像；读不出再写 <code>firmware/release/ms2130s_backup.bin</code>。救砖只写 backup；<code>experiments/</code> 只用于正常解锁刷写，<code>danger/</code> 永远不写。</p></div>
+  </div>
+  <div class="rec-step">
+    <span class="n">4</span>
+    <div><b>写后校验</b><p>写完重新读回，比对 SHA-256 与 <code>ms2130s_backup.bin</code> 一致，再回 Windows。</p></div>
+  </div>
+  <div class="rec-step">
+    <span class="n">5</span>
+    <div><b>回 Windows 验收</b><p>插 USB 3，设备在线后点<strong>刷后验收</strong>。<span id="guideSpecA">格式读取中…</span> 通过、各通道独立，才算救回。</p></div>
+  </div>
+  <div class="rec-warn">不要反复热插拔，也不要在写入过程中断电。变砖态每次枚举都可能变化，操作前先记录当前设备 ID。</div>
+  <div class="row">
+    <button class="ghost ds-btn ds-btn--ghost" id="recoverClose">关闭</button>
+  </div>
+</dialog>
+
+<dialog class="ds-dialog" id="runDialog">
+  <h3 id="runTitle">实验记录</h3>
+  <p id="runMeta">—</p>
+  <pre id="runBody" class="run-body"></pre>
+  <div class="row">
+    <button class="ghost ds-btn ds-btn--ghost" id="runClose">关闭</button>
+  </div>
+</dialog>
+
+<dialog class="ds-dialog" id="flashDialog">
+  <form method="dialog">
+    <h3>刷写固件</h3>
+    <p>目标：<code id="flashTarget"></code></p>
+    <p>刷写约 <span id="flashEta">—</span> 分钟，过程中不能拔 USB。刷完要拔卡身断电 10 秒。</p>
+    <p>输入 <code>FLASH</code> 确认：</p>
+    <input class="ds-input" id="flashConfirm" autocomplete="off" spellcheck="false" placeholder="FLASH">
+    <div class="row">
+      <button class="ghost ds-btn ds-btn--ghost" value="cancel">取消</button>
+      <button class="danger ds-btn ds-btn--danger" id="flashGo" value="go">开始刷写</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="ds-dialog" id="guideDialog">
+  <div class="guide-head">
+    <div>
+      <h3>操作指南</h3>
+      <p>页面按第一步到第七步操作；下面 1 到 8 是逐节说明</p>
+    </div>
+    <button class="guide-x" id="guideClose" aria-label="关闭">×</button>
+  </div>
+  <div class="guide-body">
+    <section class="g-sec">
+      <h4><span class="num">1</span>启动与连接</h4>
+      <ul>
+        <li>根目录只双击 <code>启动操作台.vbs</code>；<code>操作台.html</code>、<code>components.css</code>、<code>design-tokens.css</code> 不是启动入口。首次双击它会在 <code>runtime/</code> 内自动建 venv、装依赖；之后复用。所有运行时文件、录音、修通道输出都在项目工作区内。</li>
+        <li>顶部 <strong>服务</strong> 亮绿色表示后台在线；红色表示服务没起来，看 <code>runtime\logs\bootstrap.log</code> 后重新双击 <code>启动操作台.vbs</code>。</li>
+        <li id="guideAddrLine">地址读取中…</li>
+        <li>关浏览器不会停服务。要停服务，在任务管理器结束对应的 <code>pythonw.exe</code>。</li>
+      </ul>
+    </section>
+    <section class="g-sec">
+      <h4><span class="num">2</span>接卡与设备状态</h4>
+      <ul>
+        <li>卡是 <strong id="guideDeviceId">设备标识</strong>，产品名 <span id="guideProduct">采集卡</span>。必须插 <strong>USB 3 口</strong>。</li>
+        <li>设备卡显示绿色<strong>在线</strong>并带友好名，才继续录制；红色<strong>离线</strong>时检查插口和供电。</li>
+        <li>只插一台同型号卡；检测到多台会让端点匹配选错，页面会锁住录制、读回、刷写和验收。</li>
+        <li>换口后点顶部设备 pill 或环境卡的<strong>重新自检</strong>。</li>
+      </ul>
+    </section>
+    <section class="g-sec">
+      <h4><span class="num">3</span>录制 5.1</h4>
+      <ul>
+        <li>选 <strong id="guidePresets">预设</strong>，或在数字框填 <span id="guideRecordRange">范围</span> 秒。</li>
+        <li>输出留空时，WAV 落到工作区内的 <code>captures/recordings/</code>，文件名 <code>ns2_51_日期_时间.wav</code>。</li>
+        <li>点<strong>一键录制</strong>，右侧看板按秒推进；结束后日志显示退出码。</li>
+        <li>提示<strong>“没有找到 <span id="guideChannelsA">—</span> 声道的采集端点”</strong> 时，卡不在线、插在 USB 2.0 口，或被别的程序独占。</li>
+        <li>右侧<strong>实时信号</strong><span id="guideChannelsB">—</span> 条电平条在录制中每 <span id="guidePoll">—</span> 秒刷新，数据取自正在写的 WAV 尾部；全静音时贴近底部。</li>
+      </ul>
+      <div class="g-note"><strong>注意：</strong>录制期间不要切换默认音频设备，否则 WASAPI 端点会重建。</div>
+    </section>
+    <section class="g-sec">
+      <h4><span class="num">4</span>修通道</h4>
+      <ul>
+        <li>卡输出顺序是 <code id="guideRawLabels">FL, FR, LFE, FC, BL, BR</code>；标准是 <code id="guideFixedLabels">FL, FR, FC, LFE, BL, BR</code>。页面只交换 <strong>c2 与 c3</strong>，其余不动；映射图里橙色块就是这两路。</li>
+        <li>WAV 输出到 <code>captures/fixed/</code> 下同名 <code>_fixed.wav</code>；视频输出 <code>_fixed.mkv</code>，视频流直接复制、不重编码。</li>
+        <li>路径可以手填工作区内的绝对路径，也可以从 <strong>captures 下拉</strong>里选现成录音。</li>
+        <li>修完用播放器或 OBS 听：低频应回到第四声道，人声对白在第三声道。</li>
+        <li>看板显示修通道百分比，来自 ffmpeg 的 <code>-progress</code>；完成后输出文件 SHA 记入实验记录。</li>
+      </ul>
+    </section>
+    <section class="g-sec">
+      <h4><span class="num">5</span>刷前检查</h4>
+      <ul>
+        <li>在固件下拉里选目标，点<strong>刷前检查</strong>，等绿色面板出现 <strong>0 error</strong>。</li>
+        <li>红色面板会把 lint 原文列出来，常见 <code>bNumEndpoints=0 but 1 endpoint</code>，这种不要刷。</li>
+        <li>lint 只查描述符合法性，不验证音频格式；格式以刷完实测为准。</li>
+      </ul>
+    </section>
+    <section class="g-sec">
+      <h4><span class="num">6</span>安全刷写</h4>
+      <ul>
+        <li>刷写前必须先点<strong>读回快照</strong>，约 6 分钟；文件落在 <code>firmware/snapshots/</code>，页面会校验 <code>3C C3</code> 与 98356 B。每次刷写后旧快照自动失效，下一次刷写前要重新读回。</li>
+        <li>点<strong>安全刷写</strong>，在弹窗输入 <code>FLASH</code>；<code>danger/</code> 固件不在可刷列表里。没有有效快照时按钮不会放行。</li>
+        <li>约 <strong>6 分钟</strong>，期间不能拔 USB、不能让电脑休眠。看板会显示刷写日志。</li>
+        <li>刷写和读回期间“停止”按钮锁住；不要用任务管理器强行结束进程。</li>
+        <li>刷完断电：拔卡身上的 USB 头，等 <strong>10 秒</strong>再插。拔 HUB 到电脑那根线不算。</li>
+        <li>刷完断电重插后点<strong>刷后验收</strong>，自动查枚举、<span id="guideSpecB">格式读取中…</span>、各通道独立性；视频项需人工抓帧。</li>
+        <li>回退原厂：选 <code>ms2130s_backup.bin</code> 刷回，序列号还原 20210629；同样先读回新快照。</li>
+      </ul>
+      <div class="g-note"><strong>红线：</strong><code>firmware/danger/</code> 里的 alt3only 会变砖，操作台直接拒绝，不要绕过去用手工命令刷。</div>
+    </section>
+    <section class="g-sec">
+      <h4><span class="num">7</span>环境与文档</h4>
+      <ul>
+        <li>环境卡绿点表示就绪：Python、numpy、ffmpeg、两个 release 固件都在。</li>
+        <li>numpy 供 <code>tooling/analysis</code> 取证脚本；ffmpeg 供修通道。</li>
+        <li>文档卡只留一个“文档索引”，从索引进入 README、01–07、资产清单、核对记录、全景和解锁指南。</li>
+        <li>环境卡的<strong>回归自检</strong>跑 7 SHA、7 lint、文档链接、关键路径、HTML 与 PowerShell 编码，结果进实验记录。</li>
+        <li><strong>实验记录</strong>卡保留每次操作的 manifest、日志与产物 SHA；点“详情”看完整 JSON，点“导出”下载 zip 证据包。</li>
+        <li>固件卡的<strong>固件对比</strong>用 1 KB 块热图看两个固件的差异；<strong>救砖流程</strong>在文档卡下方，打开五步弹窗。</li>
+      </ul>
+    </section>
+    <section class="g-sec">
+      <h4><span class="num">8</span>故障速查</h4>
+      <table class="g-table ds-table ds-table--compact ds-table--plain">
+        <tr><th>现象</th><td>处理</td></tr>
+        <tr><th>页面数据全灰</th><td>服务没起来：重新双击 <code>启动操作台.vbs</code>，或访问 <code>/api/ping</code></td></tr>
+        <tr><th>修通道提示找不到 ffmpeg</th><td>先重新双击 <code>启动操作台.vbs</code> 重装依赖；仍失败时把 ffmpeg 放到 <code>runtime/bin</code>，或设 <code>FFMPEG_PATH</code></td></tr>
+        <tr><th>录制找不到 <span id="faqChannels">—</span> 声道</th><td>卡不在线或插在 USB 2.0 口；先看设备卡</td></tr>
+        <tr><th>端口被占用</th><td>服务自动回退 <span id="faqPorts">读取中…</span>；也可先结束已在运行的 <code>pythonw.exe</code></td></tr>
+        <tr><th>刷写返回 400</th><td>确认码不是 <code>FLASH</code>、选了 danger 固件，或 lint 未通过</td></tr>
+        <tr><th>实时信号不动</th><td>只有录制任务显示电平；录制失败或设备离线时保持空条，先看日志</td></tr>
+        <tr><th>实验记录为空</th><td>做一次录制、检查或回归即生成；<code>runs/</code> 被删也会清空</td></tr>
+        <tr><th>双击 <code>启动操作台.vbs</code> 没反应</th><td>看 <code>runtime\logs\bootstrap.log</code></td></tr>
+      </table>
+    </section>
+  </div>
+  <div class="guide-foot">
+    <span class="tip">关闭后收进右上角“操作指南”，随时再打开</span>
+    <button class="primary ds-btn ds-btn--primary" id="guideOk">知道了</button>
+  </div>
+</dialog>
+
+<script type="module">
+  const $ = (s) => document.querySelector(s);
+  let CFG = null;
+  const logEl = $('#log');
+  const toastEl = $('#toast');
+  let toastTimer = 0;
+  let currentJob = null;
+  let pollTimer = 0;
+  let busy = false;
+  let firmwareCache = [];
+  let jobKind = '';
+  let jobTotal = 0;
+  let booted = false;
+  let deviceKnown = false;
+  let deviceOnline = false;
+  let deviceCount = 0;
+  let lintState = null;
+  let snapshotState = null;
+  let lintPath = '';
+  let lintSha = '';
+  let lastDone = '';
+  let lastFailed = false;
+  let lastRecordOut = '';
+  let lastUserAction = Date.now();
+
+  // 有操作时每 60 秒报一次到；关掉浏览器或连续无操作，服务端超时后自动退出。
+  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((name) => {
+    window.addEventListener(name, () => { lastUserAction = Date.now(); }, { passive: true });
+  });
+  setInterval(() => {
+    if (document.visibilityState === 'visible' && Date.now() - lastUserAction < 5 * 60 * 1000) {
+      fetch('/api/heartbeat', { cache: 'no-store' }).catch(() => {});
+    }
+  }, 60000);
+
+  function toast(msg, bad = false) {
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('bad', bad);
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
+  }
+
+  async function api(path, body) {
+    const init = body === undefined ? {} : {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    };
+    const r = await fetch(path, init);
+    let data;
+    try { data = await r.json(); } catch { data = { ok: false, error: '服务无响应' }; }
+    if (!r.ok || data.ok === false) throw new Error(data.error || ('HTTP ' + r.status));
+    return data;
+  }
+
+  function setBusy(v) {
+    busy = v;
+    updateActionState();
+    updateNextStep();
+  }
+
+  // 所有按钮的可用性只在这里算；各 handler 不重复写状态判断。
+  function updateActionState() {
+    const hasDevice = deviceOnline;
+    const set = (id, disabled, title) => {
+      const el = $(id);
+      if (!el) return;
+      el.disabled = disabled;
+      el.title = title || '';
+    };
+    const fixPath = $('#fixPath').value.trim();
+    const wrongExt = fixKind === 'video'
+      ? /\.wav$/i.test(fixPath)
+      : /\.(mkv|mp4|mov|m4v|ts)$/i.test(fixPath);
+    const fixReady = !!fixPath && !wrongExt;
+    const flashReady = lintState === 'ok' && snapshotState === 'ok';
+    const deviceAction = !deviceKnown ? '正在读取设备状态，稍等'
+      : (!hasDevice ? (deviceCount > 1 ? '检测到多台：只留一台再操作' : '设备离线：插 USB 3 口再操作') : '');
+
+    set('#btnRecord', busy || !hasDevice, busy ? '任务运行中' : deviceAction);
+    set('#btnFix', busy || !fixReady, busy ? '任务运行中' : (!fixReady ? '先填文件路径或选一段 WAV' : ''));
+    set('#btnLint', busy || !$('#fwPick').value, busy ? '任务运行中' : (!$('#fwPick').value ? '没有可检查的固件' : ''));
+    let flashTip = '';
+    if (busy) flashTip = '任务运行中';
+    else if (!hasDevice) flashTip = deviceAction;
+    else if (!flashReady) flashTip = (lintState !== 'ok' ? '先做刷前检查，检查通过后才能刷写' : '先读回当前固件快照，基线校验通过后才能刷写');
+    set('#btnFlash', busy || !flashReady || !hasDevice, flashTip);
+    set('#btnSnapshot', busy || !hasDevice, busy ? '任务运行中' : deviceAction);
+    set('#btnVerify', busy || !hasDevice, busy ? '任务运行中' : deviceAction);
+    set('#btnDiff', busy, busy ? '任务运行中' : '');
+    set('#btnRegress', busy, busy ? '任务运行中' : '');
+    set('#btnEnv', busy, busy ? '任务运行中' : '');
+    const canStop = !!(busy && currentJob && jobKind !== 'flash' && jobKind !== 'snapshot');
+    set('#btnStop', !canStop, canStop ? '' : (busy && currentJob ? '刷写/读回过程中不能停止，强行中断可能损坏设备' : ''));
+    set('#btnClear', busy, busy ? '任务运行中，先停止再清空' : '');
+    const fw = $('#fwPick');
+    if (fw) fw.disabled = busy;
+
+    const wp = $('#wavPick');
+    if (wp) wp.hidden = fixKind === 'video';
+
+    $('#recordHint').textContent = !deviceKnown
+      ? '正在读取采集卡状态…'
+      : (!hasDevice
+        ? (deviceCount > 1 ? '检测到多台同型号采集卡：只留一台再录制。' : '设备离线：插 USB 3 口后才能录制。')
+        : '设备在线；录制时右侧显示电平。');
+    $('#recordHint').className = 'action-hint ' + (!deviceKnown ? '' : (!hasDevice ? 'bad' : 'ok'));
+
+    $('#fixHint').textContent = wrongExt
+      ? (fixKind === 'video' ? '当前是视频模式，不能选 WAV；换成视频文件或切回 WAV。' : '当前是 WAV 模式，不能选视频文件；换成 WAV 或切到视频。')
+      : (fixKind === 'video'
+        ? (!fixReady ? '视频请填工作区内绝对路径；“一键修通道”会在路径可用后启用。' : '视频输入已就绪；输出会写到 captures/fixed 下的 _fixed.mkv。')
+        : (!fixReady ? '选 WAV 或填路径后，“一键修通道”才可用。' : '已选 WAV 输入；输出会写成 _fixed.wav。'));
+    $('#fixHint').className = 'action-hint ' + (!fixReady ? 'bad' : '');
+
+    const flashHint = $('#flashHint');
+    if (flashHint) {
+      if (busy) {
+        flashHint.textContent = '任务运行中，完成后再继续。';
+        flashHint.className = 'action-hint';
+      } else {
+        flashHint.textContent = flashStateText();
+        flashHint.className = 'action-hint ' + (!deviceKnown ? '' : (!deviceOnline ? 'bad' : (flashReady ? 'ok' : (lintState === 'bad' ? 'bad' : ''))));
+      }
+    }
+  }
+
+  // 按 设备 → lint → 快照 的顺序给出第一个阻塞原因。
+  function flashStateText() {
+    if (!deviceKnown) return '正在读取采集卡状态…';
+    if (deviceCount > 1) return '检测到多台同型号设备，只留一台再刷写。';
+    if (!deviceOnline) return '设备离线：插 USB 3 口后才能刷写。';
+    if (lintState === 'bad') return '当前固件检查未通过，不能刷写。先换固件或修正问题。';
+    if (lintState !== 'ok') return '先做刷前检查，检查通过后“安全刷写”才可用。';
+    if (snapshotState === 'bad') return '快照未通过基线校验，不能刷写；重新读回并确认没有拔线。';
+    if (snapshotState !== 'ok') return '检查通过；刷写前先点“读回快照”，快照通过基线校验后才能刷。';
+    return '当前固件已通过检查，且快照已读回；可以刷写，刷完必须拔卡身断电 10 秒。';
+  }
+
+  // 只给一个建议动作：设备 → 录制 → 修通道 → lint → 快照 → 刷写 → 验收。
+  function updateNextStep() {
+    const set = (state, label, title, body, target, action, act = '') => {
+      const box = $('#nextStep');
+      box.dataset.state = state;
+      box.dataset.target = target;
+      box.dataset.act = act;
+      $('#nextState').textContent = label;
+      $('#nextTitle').textContent = title;
+      $('#nextBody').textContent = body;
+      const go = $('#nextGo');
+      const stepLabels = { record: '第二步', fix: '第三步', lint: '第四步', snapshot: '第五步', flash: '第六步', verify: '第七步' };
+      go.textContent = act && stepLabels[act] ? stepLabels[act] + ' · ' + action : action;
+      go.className = 'ds-btn ds-btn--sm next-go ' + (act ? 'ds-btn--primary' : 'ds-btn--ghost');
+    };
+    if (busy) {
+      set('run', '运行中', '任务正在进行', '看板会持续刷新进度、信号和日志；完成后这里会给下一步。', '#console', '看运行');
+    } else if (!deviceKnown) {
+      set('', '读取中', '正在读取设备状态…', '服务已连接，正在检测采集卡；离线时仍可修通道和做刷前检查。', '#deviceCard', '刷新状态', 'refresh');
+    } else if (lastDone === 'record') {
+      set('ok', '可继续', '录制完成，一键修通道', '这段录音的路径已带入修通道。点一下交换 c2 / c3，写出 _fixed.wav。', '#fixCard', '一键修通道', 'fix');
+    } else if (lastDone === 'fix') {
+      set('ok', '可继续', '修通道完成，先做刷前检查', '固定文件已输出。选好目标固件，点第四步“刷前检查”；通过后第五步读回快照。', '#fwCard', '刷前检查', 'lint');
+    } else if (lastDone === 'flash') {
+      set('warn', '需断电', '刷写完成，先断电', '拔卡身 USB 头，等 10 秒再插，然后再验收；不要只拔 HUB。', '#fwCard', deviceOnline ? '一键验收' : '刷新设备', deviceOnline ? 'verify' : 'refresh');
+    } else if (lastDone === 'snapshot') {
+      if (lintState === 'ok' && snapshotState === 'ok') {
+        set('ok', '可继续', '快照已读回，可对比或刷写', '先确认 SHA 与大小；需要时打开“固件对比”，再决定是否刷写。', '#fwCard', '看固件');
+      } else if (lintState === 'ok') {
+        set('warn', '需重读', '快照状态已失效，先重新读回', '设备可能换过口或刚刷过；重新读回当前固件，基线校验通过后再刷。', '#fwCard', '读回快照', 'snapshot');
+      } else {
+        set('warn', '需检查', '快照已读回，先做刷前检查', '快照只证明当前设备可读回；选好目标固件后点“刷前检查”，通过后才刷写。', '#fwCard', '刷前检查', 'lint');
+      }
+    } else if (lastDone === 'verify') {
+      set('ok', '已完成', '验收通过，导出证据', '在“实验记录”里看详情或导出 zip；需要复盘时再跑回归。', '#runsCard', '看记录');
+    } else if (lastDone === 'regress') {
+      set('ok', '已完成', '回归完成，查看记录', 'SHA、lint、文档、关键路径与 HTML 的结果都在实验记录里。', '#runsCard', '看记录');
+    } else if (lintState === 'bad') {
+      set('bad', '需处理', '固件检查未通过，不要刷写', '换一个固件，或先修正 lint 报出的问题。当前“安全刷写”已锁定。', '#fwCard', '换固件');
+    } else if (deviceCount > 1) {
+      set('warn', '多台设备', '只保留一台采集卡', '同型号多台会让端点匹配选错设备。拔到只留一台，再刷新状态。', '#deviceCard', '刷新状态', 'refresh');
+    } else if (!deviceOnline) {
+      set('warn', '设备离线', '先让采集卡上线', '插 USB 3 口。设备不在线时仍可修通道、做刷前检查和固件对比。', '#deviceCard', '刷新状态', 'refresh');
+    } else if (snapshotState === 'bad') {
+      set('bad', '需重读', '快照未通过基线校验', '不要刷写。确认没有拔线，重新读回当前固件；仍失败就检查设备连接。', '#fwCard', '重读快照', 'snapshot');
+    } else if (lastFailed) {
+      set('bad', '需处理', '上一次任务没有完成', '看运行日志和实验记录，确认失败原因后再重试。', '#console', '看日志');
+    } else if (snapshotState === 'ok' && lintState !== 'ok') {
+      set('warn', '需检查', '快照已读回，先做刷前检查', '选好目标固件后点“刷前检查”，通过后“安全刷写”才可用。', '#fwCard', '刷前检查', 'lint');
+    } else if (lintState === 'ok' && snapshotState !== 'ok') {
+      set('warn', '需快照', '检查通过，先读回当前固件', '点一下“读回快照”，等基线校验通过后再执行安全刷写。', '#fwCard', '读回快照', 'snapshot');
+    } else if (lintState === 'ok') {
+      set('ok', '可继续', '检查通过，可以刷写', '快照已读回；执行安全刷写，刷完必须断电。', '#fwCard', '安全刷写', 'flash');
+    } else {
+      set('ok', '可开始', '设备在线，先录一段', '建议先录 ' + (CFG ? secLabel(CFG.record_presets_sec[0]) : '一段') + '，确认 ' + (CFG ? CFG.channels : '多') + ' 个通道都有信号，再决定修通道或刷固件。', '#recordCard', '一键录制', 'record');
+    }
+  }
+
+  function setFixInput(path) {
+    if (!path) return false;
+    fixKind = 'wav';
+    for (const b of $('#fixKind').querySelectorAll('button')) b.classList.toggle('on', b.dataset.kind === 'wav');
+    $('#fixPath').value = path;
+    $('#wavPick').value = '';
+    updateActionState();
+    return true;
+  }
+
+  function prepareFixInput() {
+    if ($('#fixPath').value.trim()) return true;
+    if (fixKind === 'wav') {
+      if (lastRecordOut && setFixInput(lastRecordOut)) return true;
+      const first = Array.from($('#wavPick').options).find((o) => o.value);
+      if (first) return setFixInput(first.value);
+    }
+    return false;
+  }
+
+  // 下一步复用各卡已有的主按钮，不另开一套动作路径。
+  function runNextAction() {
+    const act = $('#nextStep').dataset.act;
+    const target = $('#nextStep').dataset.target;
+    const focus = () => {
+      const el = target && document.querySelector(target);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    if (!act) { focus(); return; }
+    if (act === 'refresh') { refresh(); return; }
+    if (act === 'record') {
+      if ($('#btnRecord').disabled) { focus(); toast($('#recordHint').textContent, true); return; }
+      if (!CFG) { toast('配置未加载，无法录制', true); return; }
+      if (!$('#sec').value) $('#sec').value = CFG.record_default_sec;
+      $('#btnRecord').click();
+      return;
+    }
+    if (act === 'fix') {
+      if (!prepareFixInput()) { focus(); toast('先选一段 WAV，或让录制生成一段', true); return; }
+      if ($('#btnFix').disabled) { focus(); toast($('#fixHint').textContent, true); return; }
+      $('#btnFix').click();
+      return;
+    }
+    if (act === 'verify' || act === 'flash' || act === 'snapshot' || act === 'lint') {
+      const btn = { verify: '#btnVerify', flash: '#btnFlash', snapshot: '#btnSnapshot', lint: '#btnLint' }[act];
+      if ($(btn).disabled) { focus(); toast($(btn).title || '当前条件不满足', true); return; }
+      $(btn).click();
+      return;
+    }
+    focus();
+  }
+
+
+  function pill(el, ok, text, title) {
+    el.classList.toggle('is-ok', !!ok);
+    el.classList.toggle('is-bad', ok === false);
+    el.title = title || '';
+    el.querySelector('span').textContent = text;
+  }
+
+  function setRun(phase, pct, sub, state) {
+    $('#runPhase').textContent = phase;
+    $('#runTime').textContent = sub;
+    const bar = $('#runBar');
+    bar.classList.toggle('indet', pct === null && state === 'running');
+    bar.classList.toggle('ok', state === 'ok');
+    bar.classList.toggle('bad', state === 'bad');
+    bar.style.width = (pct === null ? 100 : pct) + '%';
+    const consoleEl = $('#console');
+    if (consoleEl) consoleEl.dataset.state = state || 'idle';
+  }
+
+  function initSignal() {
+    if (!CFG) return;
+    const box = $('#sigBars');
+    box.innerHTML = '';
+    for (let i = 0; i < CFG.channels; i++) {
+      const color = CFG.channel_colors[i];
+      const ch = document.createElement('div');
+      ch.className = 'sig-ch';
+      ch.style.setProperty('--c', color);
+      ch.innerHTML = '<div class="sig-track"><div class="sig-fill"></div></div>'
+        + '<div class="sig-name">' + CFG.channel_labels[i] + '</div><div class="sig-val">—</div>';
+      box.appendChild(ch);
+    }
+    const fm = $('#flashMap');
+    fm.innerHTML = '';
+    for (let i = 0; i < CFG.flash_blocks; i++) {
+      const c = document.createElement('div');
+      c.className = 'fm-cell';
+      fm.appendChild(c);
+    }
+  }
+
+  function setLevels(levels, note) {
+    if (!CFG) return;
+    const fills = $('#sigBars').querySelectorAll('.sig-fill');
+    const vals = $('#sigBars').querySelectorAll('.sig-val');
+    if (!levels || !levels.length) {
+      fills.forEach((f) => { f.style.height = '0%'; });
+      vals.forEach((v) => { v.textContent = '—'; });
+    } else {
+      levels.slice(0, CFG.channels).forEach((v, i) => {
+        const h = Math.min(100, Math.max(0, v * CFG.level_display_gain * 100));
+        fills[i].style.height = h.toFixed(1) + '%';
+        vals[i].textContent = v.toFixed(4);
+      });
+    }
+    if (note) $('#sigNote').textContent = note;
+  }
+
+  function setFlashMap(pct) {
+    if (!CFG) return;
+    const fm = $('#flashMap');
+    if (pct === null || pct === undefined) {
+      fm.classList.remove('on');
+      fm.querySelectorAll('.fm-cell').forEach((c) => c.classList.remove('done', 'cur'));
+      return;
+    }
+    fm.classList.add('on');
+    const cells = fm.querySelectorAll('.fm-cell');
+    const blocks = CFG.flash_blocks;
+    const n = Math.max(0, Math.min(blocks, Math.floor(pct / 100 * blocks)));
+    cells.forEach((c, i) => {
+      c.classList.toggle('done', i < n);
+      c.classList.toggle('cur', i === n && pct < 100);
+    });
+  }
+
+  // 唯一状态快照：/api/status 同时提供 device / env / firmwares / wavs，页面不再单独请求设备。
+  function renderStatus(s) {
+    snapshotState = s.snapshot ? 'ok' : (snapshotState === 'bad' ? 'bad' : null);
+    const env = s.env || [];
+    const find = (n) => env.find(x => x.name === n) || {};
+    pill($('#pillServer'), true, '服务在线', s.root || '');
+    pill($('#pillPython'), find('Python').ok, 'Python', find('Python').detail || '');
+    pill($('#pillNumpy'), find('numpy').ok, 'numpy', find('numpy').detail || '');
+    pill($('#pillFfmpeg'), find('ffmpeg').ok, 'ffmpeg', find('ffmpeg').detail || '');
+
+    renderEnv(env);
+    renderFirmware(s.firmwares || []);
+    renderWavs(s.wavs || []);
+    renderDevice(s.device || []);
+  }
+
+  function renderDevice(dev) {
+    deviceKnown = true;
+    const devCfg = CFG || {};
+    const idText = (devCfg.vid && devCfg.pid) ? ('VID_' + devCfg.vid + ' / PID_' + devCfg.pid) : '设备标识';
+    const product = devCfg.product || '采集卡';
+    const channels = devCfg.channels || '—';
+    const live = dev.filter(d => ['ok', 'error', 'degraded'].includes(String(d.Status || '').toLowerCase()));
+    const ids = new Set(live.filter(d => d.InstanceId).map(d => String(d.InstanceId)));
+    deviceCount = ids.size + live.filter(d => !d.InstanceId).length;
+    deviceOnline = deviceCount === 1;
+    const multi = deviceCount > 1;
+    const primary = live[0] || null;
+    const deviceTitle = multi ? ('检测到 ' + deviceCount + ' 台，只留一台') : (deviceOnline ? '卡在线' : '卡未连接');
+    pill($('#pillDevice'), deviceOnline, deviceTitle,
+      deviceOnline ? (primary.InstanceId || '') : (multi ? ('检测到 ' + deviceCount + ' 台同型号设备') : ('未检测到 VID_' + (devCfg.vid || '—') + '，插 USB 3 口')));
+
+    const card = $('#deviceCard');
+    card.classList.toggle('on', deviceOnline);
+    card.classList.toggle('off', !deviceOnline);
+    $('#devName').textContent = multi ? ('检测到 ' + deviceCount + ' 台采集卡') : (deviceOnline ? (primary.FriendlyName || product) : '未检测到采集卡');
+    $('#devId').textContent = deviceOnline
+      ? (primary.InstanceId || idText)
+      : (multi ? idText + ' · 多台同型号' : idText + ' · 未枚举');
+    $('#devState').textContent = multi ? '仅保留一台' : (deviceOnline ? '在线' : '离线');
+    $('#devNote').textContent = multi
+      ? '同型号多台会让端点匹配选错设备。只保留一台，录制、读回和刷写已锁住。'
+      : (deviceOnline
+        ? '已枚举。录制前确认插在 USB 3 口，避免 ' + channels + ' 声道端点降级。'
+        : '要求 USB 3 口。设备不在线时，录制会找不到 ' + channels + ' 声道端点。');
+    updateActionState();
+    updateNextStep();
+  }
+
+  function renderEnv(env) {
+    const box = $('#envList');
+    box.innerHTML = '';
+    for (const item of env) {
+      const tile = document.createElement('div');
+      tile.className = 'env-tile';
+      tile.innerHTML = '<div class="top"><i class="dot ' + (item.ok ? 'ok' : 'bad') + '"></i><span class="nm"></span></div>'
+        + '<div class="dt"></div>';
+      tile.querySelector('.nm').textContent = item.name;
+      tile.querySelector('.dt').textContent = item.detail;
+      box.appendChild(tile);
+    }
+  }
+
+  function renderFirmware(list) {
+    firmwareCache = list;
+    const sel = $('#fwPick');
+    const prev = sel.value;
+    sel.innerHTML = '';
+    const groups = { release: 'release · 当前与回退', experiments: 'experiments · 实验', danger: 'danger · 禁止刷' };
+    for (const [key, label] of Object.entries(groups)) {
+      const items = list.filter(f => f.path.includes('/' + key + '/'));
+      if (!items.length) continue;
+      const g = document.createElement('optgroup');
+      g.label = label;
+      for (const f of items) {
+        const o = document.createElement('option');
+        o.value = f.path;
+        o.textContent = f.name + '  ·  ' + f.sha.slice(0, 8) + (f.danger ? '  [变砖]' : '');
+        if (f.danger) { o.disabled = true; o.style.color = 'var(--danger)'; }
+        g.appendChild(o);
+      }
+      sel.appendChild(g);
+    }
+    const prefer = list.find(f => f.path.includes('/release/') && /unlock/i.test(f.name))
+      || list.find(f => f.path.includes('/release/') && /51/i.test(f.name))
+      || list.find(f => f.path.includes('/release/'))
+      || list.find(f => !f.danger);
+    if (prev && list.some(f => f.path === prev && !f.danger)) sel.value = prev;
+    else if (prefer) sel.value = prefer.path;
+    const cur = firmwareCache.find(x => x.path === sel.value);
+    if (lintPath && (lintPath !== sel.value || lintSha !== (cur ? cur.sha : ''))) resetLint();
+    updateFwDetail();
+    updateActionState();
+    updateNextStep();
+  }
+
+  function updateFwDetail() {
+    const path = $('#fwPick').value;
+    const f = firmwareCache.find(x => x.path === path);
+    const tag = $('#fwTag');
+    if (!f) {
+      tag.textContent = '—'; tag.className = 'ds-tag ds-tag--sm ds-tag--outline is-neutral';
+      $('#fwSha').textContent = 'SHA —';
+      $('#fwSize').textContent = '—';
+      return;
+    }
+    const kind = f.path.includes('/danger/') ? 'danger' : (f.path.includes('/experiments/') ? 'experiments' : 'release');
+    tag.textContent = kind;
+    tag.className = 'ds-tag ds-tag--sm ds-tag--outline ' + (kind === 'danger' ? 'is-danger' : (kind === 'experiments' ? 'is-exp' : 'is-current'));
+    $('#fwSha').textContent = 'SHA ' + f.sha.slice(0, 16) + '…';
+    $('#fwSize').textContent = f.size + ' B';
+  }
+
+  function resetLint() {
+    lintState = null;
+    lintPath = '';
+    lintSha = '';
+    const panel = $('#lintPanel');
+    panel.className = 'lint-panel';
+    panel.textContent = '当前固件尚未做刷前检查';
+  }
+
+  function renderWavs(list) {
+    const sel = $('#wavPick');
+    sel.innerHTML = '<option value="">从 captures 里选…</option>';
+    for (const dir of ['evidence', 'archive']) {
+      const items = list.filter(w => w.dir === dir);
+      if (!items.length) continue;
+      const g = document.createElement('optgroup');
+      g.label = dir;
+      for (const w of items) {
+        const o = document.createElement('option');
+        o.value = w.path;
+        o.textContent = w.name + '  ·  ' + w.mb + ' MB';
+        g.appendChild(o);
+      }
+      sel.appendChild(g);
+    }
+  }
+
+  async function refreshRuns() {
+    const box = $('#runList');
+    try {
+      const d = await api('/api/runs?limit=10');
+      if (!d.runs.length) {
+        box.innerHTML = '<div class="run-empty ds-empty">还没有实验记录。做一次录制、检查或刷写就会生成。</div>';
+        return;
+      }
+      box.innerHTML = '';
+      for (const r of d.runs) {
+        const res = r.result || {};
+        const bad = res.failed === true || (res.exit !== undefined && res.exit !== 0);
+        const item = document.createElement('div');
+        item.className = 'run-item';
+        item.innerHTML = '<span class="ds-tag ds-tag--xs ds-tag--outline ' + (bad ? 'is-danger' : 'is-current') + '"></span>'
+          + '<span class="run-title"></span>'
+          + '<span class="run-actions"><button class="ds-btn ds-btn--ghost ds-btn--xs" data-act="view">详情</button><button class="ds-btn ds-btn--ghost ds-btn--xs" data-act="export">导出</button></span>'
+          + '<span class="run-subline"><span class="rt"></span><span class="rs"></span></span>';
+        item.querySelector('.ds-tag').textContent = (r.kind || 'run').toUpperCase();
+        item.querySelector('.run-title').textContent = r.title || r.id;
+        item.querySelector('.rt').textContent = r.started || '';
+        item.querySelector('.rs').textContent = (res.exit !== undefined ? 'exit ' + res.exit : '—')
+          + ' · ' + ((r.outputs && r.outputs.length) ? r.outputs.length + ' 项产物' : '无产物');
+        item.querySelector('[data-act="view"]').onclick = () => showRun(r);
+        item.querySelector('[data-act="export"]').onclick = () => {
+          location.href = '/api/export?id=' + encodeURIComponent(r.id);
+        };
+        box.appendChild(item);
+      }
+    } catch (e) {
+      box.innerHTML = '<div class="run-empty ds-empty">记录读取失败：' + e.message + '</div>';
+    }
+  }
+
+  function showRun(r) {
+    $('#runTitle').textContent = r.title || r.id;
+    $('#runMeta').textContent = r.id + ' · ' + (r.kind || '') + ' · ' + (r.started || '') + (r.parent ? ' · 父 ' + r.parent : '');
+    $('#runBody').textContent = JSON.stringify(r, null, 2);
+    $('#runDialog').showModal();
+  }
+
+  function renderVerify(items, overall) {
+    $('#verifyHead').textContent = overall ? '全部通过' : '有失败项，按下面逐条排查';
+    const box = $('#verifyList');
+    box.innerHTML = '';
+    for (const it of items) {
+      const cls = it.ok === true ? 'ok' : (it.ok === false ? 'bad' : 'skip');
+      const div = document.createElement('div');
+      div.className = 'verify-item ' + cls;
+      div.innerHTML = '<i class="vdot"></i><div><div class="vt"></div><div class="vd"></div></div>';
+      div.querySelector('.vt').textContent = it.name;
+      div.querySelector('.vd').textContent = (it.ok === true ? '通过 · ' : it.ok === false ? '失败 · ' : '跳过 · ') + (it.detail || '');
+      box.appendChild(div);
+    }
+  }
+
+  async function refresh() {
+    try {
+      const s = await api('/api/status');
+      renderStatus(s);
+      refreshRuns();
+      if (!booted) {
+        booted = true;
+        setRun('待命', 0, '服务在线 · 选择左侧操作开始', '');
+      }
+    } catch (e) {
+      pill($('#pillServer'), false, '服务离线', e.message);
+      toast('状态读取失败：' + e.message, true);
+    }
+  }
+
+  function logPlaceholder(text) {
+    logEl.innerHTML = '<span class="placeholder"></span>';
+    logEl.querySelector('.placeholder').textContent = text;
+  }
+
+  async function start(kind, payload, label, total) {
+    if (busy) return;
+    try {
+      const r = await api('/api/' + kind, payload);
+      currentJob = r.id;
+      jobKind = kind;
+      jobTotal = total || 0;
+      if (kind === 'record') lastRecordOut = r.out || '';
+      lastDone = '';
+      lastFailed = false;
+      setBusy(true);
+      $('#jobName').textContent = label;
+      setRun(label, 0, '启动…', 'running');
+      setLevels(null, false);
+      setFlashMap(null);
+      $('#sigNote').textContent = '等待信号';
+      logPlaceholder('等待输出…');
+      poll();
+    } catch (e) {
+      lastDone = '';
+      lastFailed = true;
+      toast(e.message, true);
+      setRun('启动失败', 0, e.message, 'bad');
+      updateNextStep();
+    }
+  }
+
+  async function poll() {
+    if (!currentJob) return;
+    clearTimeout(pollTimer);
+    try {
+      const s = await api('/api/job?id=' + encodeURIComponent(currentJob));
+      if (!s.ok) throw new Error(s.error || '任务丢失');
+      logEl.textContent = s.log || '等待输出…';
+      logEl.scrollTop = logEl.scrollHeight;
+      $('#jobName').textContent = s.name;
+
+      let pct = null;
+      if (jobKind === 'record' && jobTotal) {
+        pct = Math.min(99, Math.round(s.elapsed / jobTotal * 100));
+      } else if (s.progress !== null && s.progress !== undefined) {
+        pct = s.progress;
+      } else if ((jobKind === 'flash' || jobKind === 'snapshot') && s.running) {
+        const flashSec = CFG ? CFG.flash_estimate_sec : 0;
+        pct = flashSec > 0 ? Math.min(97, Math.round(s.elapsed / flashSec * 100)) : 0;
+      }
+      if (!s.running) pct = 100;
+      const sub = s.running ? ('已用 ' + s.elapsed + ' s') : ('退出 ' + s.exit + ' · ' + s.elapsed + ' s');
+      const finishedOk = s.exit === 0 && !s.failed;
+      setRun(s.name, pct, sub, s.running ? 'running' : (finishedOk ? 'ok' : 'bad'));
+
+      if (jobKind === 'record') {
+        const tail = CFG ? CFG.signal_window_sec : '';
+        setLevels(s.levels, s.running ? '录制中 · 尾部 ' + tail + ' s' : '录制结束');
+        setFlashMap(null);
+      } else if (jobKind === 'flash' || jobKind === 'snapshot') {
+        setLevels(null, false);
+        setFlashMap(s.running || (!s.failed && s.exit === 0) ? pct : null);
+        const mins = CFG ? Math.max(1, Math.round(CFG.flash_estimate_sec / 60)) : 0;
+        $('#sigNote').textContent = s.running
+          ? ((jobKind === 'flash' ? '写入' : '读回') + ' ' + (pct || 0) + '% · 按 ' + mins + ' 分钟估算')
+          : (s.failed ? '任务失败' : '完成');
+      } else if (jobKind === 'fix') {
+        setLevels(null, s.running
+          ? ('修通道 · ' + (s.progress === null || s.progress === undefined ? '处理中' : s.progress + '%'))
+          : '修通道结束');
+        setFlashMap(null);
+      }
+
+      if (s.running) {
+        pollTimer = setTimeout(poll, CFG ? CFG.poll_ms : 1000);
+      } else {
+        const ok = s.exit === 0 && !s.failed;
+        const doneKind = jobKind;
+        const snapOk = !!(s.snapshot && s.snapshot.valid);
+        if (doneKind === 'snapshot') snapshotState = ok && snapOk ? 'ok' : 'bad';
+        if (doneKind === 'flash') snapshotState = null;
+        if (ok && doneKind === 'record' && lastRecordOut) setFixInput(lastRecordOut);
+        if (!ok && doneKind === 'record') lastRecordOut = '';
+        const jobOk = ok && (doneKind !== 'snapshot' || snapOk);
+        lastDone = jobOk ? doneKind : '';
+        lastFailed = !jobOk;
+        currentJob = null;
+        jobKind = '';
+        jobTotal = 0;
+        setBusy(false);
+        if (jobOk) toast('完成：' + s.name);
+        else if (doneKind === 'snapshot') toast('快照未通过基线校验，已阻止刷写', true);
+        else toast('未完成：' + s.name + '，看日志', true);
+        refresh();
+      }
+    } catch (e) {
+      lastDone = '';
+      lastFailed = true;
+      currentJob = null;
+      jobKind = '';
+      jobTotal = 0;
+      setBusy(false);
+      toast(e.message, true);
+      setRun('任务中断', 0, e.message, 'bad');
+    }
+  }
+
+  $('#secChips').addEventListener('click', (e) => {
+    const b = e.target.closest('.ds-chip');
+    if (!b) return;
+    for (const c of $('#secChips').querySelectorAll('.ds-chip')) c.classList.toggle('is-on', c === b);
+    $('#sec').value = b.dataset.sec;
+  });
+
+  $('#btnRecord').onclick = () => {
+    if (!CFG) { toast('配置未加载，无法录制', true); return; }
+    const raw = parseInt($('#sec').value, 10);
+    const seconds = Number.isFinite(raw)
+      ? Math.max(CFG.min_record_sec, Math.min(CFG.max_record_sec, raw))
+      : CFG.record_default_sec;
+    start('record', { seconds, out: $('#recOut').value.trim() }, '录制 5.1 · ' + seconds + ' s', seconds);
+  };
+
+  let fixKind = 'wav';
+  $('#fixKind').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    fixKind = b.dataset.kind;
+    for (const x of $('#fixKind').querySelectorAll('button')) x.classList.toggle('on', x === b);
+    if (fixKind === 'video') {
+      const p = $('#fixPath').value.trim();
+      if (/\.wav$/i.test(p)) $('#fixPath').value = '';
+      $('#wavPick').value = '';
+      $('#fixPath').placeholder = '工作区内视频绝对路径（.mkv / .mp4 / .mov）';
+    } else {
+      $('#fixPath').placeholder = '工作区内绝对路径，或从下面选一段 WAV';
+    }
+    updateActionState();
+  });
+
+  $('#fixPath').addEventListener('input', updateActionState);
+  $('#fixPath').addEventListener('change', updateActionState);
+
+  $('#wavPick').addEventListener('change', () => {
+    const v = $('#wavPick').value;
+    if (v) $('#fixPath').value = v;
+    updateActionState();
+  });
+
+  $('#btnFix').onclick = () => {
+    const path = $('#fixPath').value.trim();
+    const wrong = fixKind === 'video' ? /\.wav$/i.test(path) : /\.(mkv|mp4|mov|m4v|ts)$/i.test(path);
+    if (!path) { toast('先填文件路径或从下拉里选一段', true); return; }
+    if (wrong) { toast(fixKind === 'video' ? '视频模式不能选 WAV' : 'WAV 模式不能选视频文件', true); return; }
+    start('fix', { path, kind: fixKind }, fixKind === 'video' ? '修通道 · 视频' : '修通道 · WAV');
+  };
+
+  $('#fwPick').addEventListener('change', () => {
+    lastDone = '';
+    resetLint();
+    updateFwDetail();
+    updateActionState();
+    updateNextStep();
+  });
+
+  $('#btnLint').onclick = async () => {
+    if (busy) return;
+    const panel = $('#lintPanel');
+    const path = $('#fwPick').value;
+    lintPath = path;
+    lintState = null;
+    lastDone = '';
+    try {
+      setBusy(true);
+      $('#jobName').textContent = '刷前检查';
+      setRun('刷前检查', null, '运行中…', 'running');
+      panel.className = 'lint-panel run';
+      panel.textContent = '正在检查描述符…';
+      const r = await api('/api/lint', { firmware: path });
+      logEl.textContent = r.output + '\n\nSHA-256  ' + r.sha + '\n大小     ' + r.size + ' B';
+      panel.className = 'lint-panel ' + (r.ok ? 'ok' : 'bad');
+      panel.textContent = r.ok
+        ? '通过 · 0 error · SHA ' + r.sha.slice(0, 16) + '…'
+        : (r.output || '检查未通过').trim();
+      lintState = r.ok ? 'ok' : 'bad';
+      lintSha = r.sha;
+      lastFailed = false;
+      setRun('刷前检查', 100, r.ok ? '通过' : '未通过', r.ok ? 'ok' : 'bad');
+      toast(r.ok ? 'lint 通过，可以刷' : 'lint 未通过，不要刷', !r.ok);
+    } catch (e) {
+      lintState = 'bad';
+      panel.className = 'lint-panel bad';
+      panel.textContent = e.message;
+      setRun('刷前检查', 100, '失败', 'bad');
+      toast(e.message, true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  $('#btnFlash').onclick = () => {
+    const opt = $('#fwPick').selectedOptions[0];
+    if (!opt || opt.disabled) { toast('没有可刷的固件', true); return; }
+    $('#flashTarget').textContent = opt.value;
+    $('#flashConfirm').value = '';
+    $('#flashDialog').showModal();
+    setTimeout(() => $('#flashConfirm').focus(), 60);
+  };
+
+  $('#flashDialog').addEventListener('close', () => {
+    if ($('#flashDialog').returnValue !== 'go') return;
+    const confirm = $('#flashConfirm').value.trim().toUpperCase();
+    if (confirm !== 'FLASH') { toast('确认码不对，已取消', true); return; }
+    start('flash', { firmware: $('#fwPick').value, confirm }, '刷写 · ' + $('#fwPick').value.split('/').pop());
+  });
+
+  $('#btnStop').onclick = async () => {
+    if (!currentJob) return;
+    if (jobKind === 'flash' || jobKind === 'snapshot') {
+      toast('刷写/读回过程中不能停止，强行中断可能损坏设备', true);
+      return;
+    }
+    try {
+      await api('/api/stop', { id: currentJob });
+      toast('已发送停止');
+    } catch (e) {
+      toast(e.message, true);
+    }
+  };
+
+  $('#btnClear').onclick = () => {
+    if (busy) { toast('任务运行中，先停止再清空', true); return; }
+    lastDone = '';
+    lastFailed = false;
+    logPlaceholder('操作日志会出现在这里。');
+    $('#jobName').textContent = '待命';
+    setRun('待命', 0, '选择左侧操作开始', '');
+    setLevels(null, false);
+    setFlashMap(null);
+    $('#sigNote').textContent = '待命 · 录制时显示电平';
+    updateActionState();
+    updateNextStep();
+  };
+
+  $('#btnSnapshot').onclick = () => start('snapshot', {}, '读回当前固件', CFG ? CFG.flash_estimate_sec : 0);
+
+  $('#btnVerify').onclick = async () => {
+    if (busy) return;
+    setBusy(true);
+    $('#verifyHead').textContent = '正在枚举设备并录 5 秒…';
+    $('#verifyList').innerHTML = '';
+    $('#verifyDialog').showModal();
+    setRun('刷后验收', null, '录制 5 秒 + 分析…', 'running');
+    try {
+      const r = await api('/api/verify', {});
+      renderVerify(r.items || [], r.overall);
+      lastDone = r.overall ? 'verify' : '';
+      lastFailed = !r.overall;
+      setRun('刷后验收', 100, r.overall ? '通过' : '有失败项', r.overall ? 'ok' : 'bad');
+      refreshRuns();
+    } catch (e) {
+      lastDone = '';
+      lastFailed = true;
+      $('#verifyHead').textContent = '验收失败：' + e.message;
+      setRun('刷后验收', 100, '失败', 'bad');
+      toast(e.message, true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  $('#btnDiff').onclick = () => {
+    const a = $('#diffA');
+    const b = $('#diffB');
+    a.innerHTML = '';
+    b.innerHTML = '';
+    for (const f of firmwareCache) {
+      for (const sel of [a, b]) {
+        const o = document.createElement('option');
+        o.value = f.path;
+        o.textContent = f.name + ' · ' + (f.sha || '').slice(0, 8) + (f.danger ? ' [变砖]' : '');
+        sel.appendChild(o);
+      }
+    }
+    const pa = firmwareCache.find((f) => f.path.includes('51unlock')) || firmwareCache[0];
+    const pb = firmwareCache.find((f) => /patch|6ch/i.test(f.name))
+      || firmwareCache.find((f) => f.path !== (pa || {}).path);
+    if (pa) a.value = pa.path;
+    if (pb) b.value = pb.path;
+    $('#diffMap').innerHTML = '';
+    $('#diffStat').textContent = '选两个固件开始对比';
+    $('#diffDialog').showModal();
+  };
+
+  $('#diffGo').onclick = async () => {
+    const a = $('#diffA').value;
+    const b = $('#diffB').value;
+    if (a === b) { toast('要选两个不同的固件', true); return; }
+    try {
+      const r = await api('/api/diff', { a, b });
+      const map = $('#diffMap');
+      map.innerHTML = '';
+      r.blocks.forEach((same, idx) => {
+        const c = document.createElement('div');
+        c.className = 'diff-cell' + (same ? '' : ' diff');
+        c.title = '块 ' + (idx + 1) + ' · 偏移 0x' + (idx * r.block_size).toString(16).toUpperCase();
+        map.appendChild(c);
+      });
+      const diffN = r.blocks.filter((x) => !x).length;
+      $('#diffStat').textContent = '不同块 ' + diffN + ' / ' + r.blocks.length
+        + ' · 差异 ' + r.diff_bytes + ' B · 大小 ' + r.size_a + ' / ' + r.size_b + ' B'
+        + '\nSHA A  ' + r.sha_a + '\nSHA B  ' + r.sha_b;
+      $('#diffStat').style.whiteSpace = 'pre-wrap';
+    } catch (e) {
+      toast(e.message, true);
+    }
+  };
+
+  $('#btnRegress').onclick = async () => {
+    if (busy) return;
+    setBusy(true);
+    setRun('回归自检', null, 'SHA / lint / 文档 / HTML…', 'running');
+    try {
+      const r = await api('/api/regress', {});
+      const d = r.result || {};
+      lastDone = d.ok ? 'regress' : '';
+      lastFailed = !d.ok;
+      setRun('回归自检', 100, d.ok ? '全部通过' : '有失败项', d.ok ? 'ok' : 'bad');
+      toast(d.ok ? '回归通过' : '回归有失败项，看实验记录', !d.ok);
+      showRun({
+        id: r.run, kind: 'regress', title: '回归自检',
+        started: new Date().toLocaleString(), result: d.summary || {}, checks: d.checks,
+      });
+    } catch (e) {
+      lastDone = '';
+      lastFailed = true;
+      setRun('回归自检', 100, '失败', 'bad');
+      toast(e.message, true);
+    } finally {
+      setBusy(false);
+      refreshRuns();
+    }
+  };
+
+  $('#btnRuns').onclick = refreshRuns;
+  $('#nextGo').onclick = runNextAction;
+  $('#diffClose').onclick = () => $('#diffDialog').close();
+  $('#verifyClose').onclick = () => $('#verifyDialog').close();
+  $('#recoverClose').onclick = () => $('#recoverDialog').close();
+  $('#runClose').onclick = () => $('#runDialog').close();
+  for (const id of ['#diffDialog', '#verifyDialog', '#recoverDialog', '#runDialog']) {
+    const d = $(id);
+    d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
+  }
+
+  $('#btnEnv').onclick = refresh;
+
+  $('#docGrid').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-doc]');
+    if (!b) return;
+    try {
+      await api('/api/open', { target: b.dataset.doc });
+      toast('已打开：' + b.dataset.doc.split('/').pop());
+    } catch (err) {
+      toast(err.message, true);
+    }
+  });
+
+  const guideDialog = $('#guideDialog');
+  $('#btnGuide').onclick = () => guideDialog.showModal();
+  $('#pillDevice').onclick = () => {
+    if (busy) { toast('任务运行中，完成后再刷新设备', true); return; }
+    refresh();
+  };
+  $('#btnRecover').onclick = () => $('#recoverDialog').showModal();
+  $('#guideClose').onclick = () => guideDialog.close();
+  $('#guideOk').onclick = () => guideDialog.close();
+  guideDialog.addEventListener('click', (e) => {
+    if (e.target === guideDialog) guideDialog.close();
+  });
+  const skipGuide = new URLSearchParams(location.search).get('guide') === '0';
+  try {
+    if (!skipGuide && !localStorage.getItem('ms2130s_guide_seen')) {
+      setTimeout(() => {
+        if (!guideDialog.open && !busy && !$('#flashDialog').open) guideDialog.showModal();
+        localStorage.setItem('ms2130s_guide_seen', '1');
+      }, 700);
+    }
+  } catch (e) {}
+
+  function renderDocs(docs) {
+    const box = $('#docGrid');
+    box.innerHTML = '';
+    for (const d of docs) {
+      if (d.hidden) continue;
+      const b = document.createElement('button');
+      b.dataset.doc = d.path;
+      b.textContent = d.label;
+      const s = document.createElement('span');
+      s.textContent = d.sub;
+      b.appendChild(s);
+      box.appendChild(b);
+    }
+  }
+
+  function secLabel(sec) {
+    return (sec > 60 && sec % 60 === 0) ? (sec / 60) + ' 分钟' : sec + ' 秒';
+  }
+
+  function specText(short = false) {
+    if (!CFG) return '多声道';
+    return CFG.channels + 'ch / ' + Math.round(CFG.sample_rate / 1000) + (short ? 'k' : ' kHz');
+  }
+
+  function applyConfig() {
+    // 设备标识与指南里的端口、预设、通道数、poll、格式、刷写估算都从这里一次填入。
+    const mapRaw = document.querySelectorAll('[data-role="raw"] .ch');
+    const mapFixed = document.querySelectorAll('[data-role="fixed"] .ch');
+    (CFG.channel_labels || []).forEach((label, i) => { if (mapRaw[i]) mapRaw[i].textContent = label; });
+    (CFG.channel_labels_fixed || []).forEach((label, i) => { if (mapFixed[i]) mapFixed[i].textContent = label; });
+    $('#mapRawText').textContent = (CFG.channel_labels || []).join(', ');
+    $('#mapFixedText').textContent = (CFG.channel_labels_fixed || []).join(', ');
+    $('#guideRawLabels').textContent = (CFG.channel_labels || []).join(', ');
+    $('#guideFixedLabels').textContent = (CFG.channel_labels_fixed || []).join(', ');
+    $('#recFmt').textContent = CFG.capture_api + ' · ' + CFG.channels + 'ch / '
+      + Math.round(CFG.sample_rate / 1000) + 'k / ' + CFG.sample_format;
+    $('#sec').min = CFG.min_record_sec;
+    $('#sec').max = CFG.max_record_sec;
+    $('#sec').value = CFG.record_default_sec;
+    const chips = $('#secChips');
+    chips.innerHTML = '';
+    for (const sec of CFG.record_presets_sec) {
+      const b = document.createElement('button');
+      b.className = 'ds-chip' + (sec === CFG.record_default_sec ? ' is-on' : '');
+      b.dataset.sec = sec;
+      b.textContent = secLabel(sec);
+      chips.appendChild(b);
+    }
+    const devCfg = CFG || {};
+    const idText = (devCfg.vid && devCfg.pid) ? ('VID_' + devCfg.vid + ' / PID_' + devCfg.pid) : '设备标识';
+    const fallbackPorts = (CFG.server.port + 1) + '–' + (CFG.server.port + CFG.server.port_span - 1);
+    $('#pillDevice').title = idText;
+    $('#guideDeviceId').textContent = idText;
+    $('#guideProduct').textContent = devCfg.product || '采集卡';
+    const usbId = (devCfg.vid && devCfg.pid) ? (devCfg.vid + ':' + devCfg.pid) : 'USB ID';
+    $('#recoverUsbIdA').textContent = usbId;
+    $('#recoverUsbIdB').textContent = usbId;
+    $('#guideAddrLine').innerHTML = '地址是 <code>http://127.0.0.1:' + CFG.server.port + '/</code>；'
+      + CFG.server.port + ' 被占用时会自动换 ' + fallbackPorts + '。';
+    $('#guidePresets').textContent = (devCfg.record_presets_sec || []).map(secLabel).join(' / ');
+    $('#guideRecordRange').textContent = devCfg.min_record_sec + '–' + devCfg.max_record_sec;
+    $('#guideChannelsA').textContent = devCfg.channels;
+    $('#guideChannelsB').textContent = devCfg.channels;
+    $('#faqChannels').textContent = devCfg.channels;
+    $('#guidePoll').textContent = (devCfg.poll_ms / 1000).toFixed(1);
+    $('#faqPorts').textContent = fallbackPorts;
+    $('#guideSpecA').textContent = specText();
+    $('#guideSpecB').textContent = specText(true);
+    $('#flashEta').textContent = Math.max(1, Math.round(devCfg.flash_estimate_sec / 60));
+    renderDocs(CFG.docs || []);
+    initSignal();
+  }
+
+  try {
+    const c = await api('/api/config');
+    CFG = c.config;
+    applyConfig();
+  } catch (err) {
+    console.error(err);
+    toast('配置加载失败：' + err.message, true);
+  }
+  $('#sigNote').textContent = '待命 · 录制时显示电平';
+  setRun('待命', 0, '正在连接本地服务…', '');
+  updateActionState();
+  updateNextStep();
+  refresh();
+</script>
+</body>
+</html>

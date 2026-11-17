@@ -1,0 +1,24 @@
+# 本机运行时与生成物
+runtime/
+tooling/ops/runs/
+dist/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+
+# 大体积录音与视频：本地保留，不纳入仓库
+*.wav
+*.mp4
+*.mov
+*.mkv
+*.avi
+
+# 日志与临时文件
+*.log
+*.tmp
+
+# 系统杂物
+.DS_Store
+Thumbs.db
+desktop.ini

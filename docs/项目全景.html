@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MS2130S_5.1ReverseKit · 项目全景</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:
+      radial-gradient(1200px 600px at 80% -10%,color-mix(in srgb, var(--accent) 7%, transparent),transparent 60%),
+      radial-gradient(900px 500px at 0% 0%,color-mix(in srgb, var(--warn) 5%, transparent),transparent 55%),
+      var(--bg);
+    color:var(--text);font-family:var(--font-ui);font-size:var(--fs-body-lg);line-height:var(--lh-relaxed);
+    font-variant-numeric:tabular-nums;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+  ::selection{background:var(--accent-selection)}
+
+  header.top{
+    padding:var(--space-48) clamp(var(--space-20),5vw,var(--space-72)) var(--space-28);
+    border-bottom:1px solid var(--line-soft);
+    display:flex;flex-direction:column;gap:var(--space-18);
+  }
+  .eyebrow{
+    font-family:var(--font-mono);font-size:var(--fs-caption);font-weight:var(--fw-medium);letter-spacing:var(--tracking-eyebrow);
+    text-transform:uppercase;color:var(--accent);line-height:var(--lh-ui);
+  }
+  h1{
+    margin:0;font-family:var(--font-display);font-size:var(--fs-hero);line-height:var(--lh-tight);
+    letter-spacing:var(--tracking-tight);font-weight:var(--fw-semibold);
+  }
+  h1 em{font-style:normal;color:var(--accent)}
+  @media(max-width:480px){h1{font-size:var(--fs-title-lg);line-height:var(--lh-base)}}
+  .sub{color:var(--text-muted);max-width:70ch;margin:0;font-size:var(--fs-lead);line-height:var(--lh-base)}
+  .badges{display:flex;flex-wrap:wrap;gap:var(--space-8);margin-top:var(--space-4)}
+
+  nav.tabs{
+    position:sticky;top:0;z-index:20;
+    display:flex;gap:var(--space-2);padding:0 clamp(var(--space-20),5vw,var(--space-72));
+    background:color-mix(in srgb, var(--bg) 86%, transparent);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line-soft);overflow-x:auto;
+  }
+  .nav-tools{
+    margin-left:auto;display:flex;align-items:center;gap:var(--space-8);padding-left:var(--space-16);
+  }
+
+  main{padding:var(--space-34) clamp(var(--space-20),5vw,var(--space-72)) var(--space-80);max-width:1280px;margin:0 auto}
+  section[hidden]{display:none}
+
+  .lede{
+    border:1px solid var(--line);border-left:3px solid var(--accent);
+    background:linear-gradient(180deg,var(--surface-2),var(--surface));
+    border-radius: var(--radius-panel);padding:var(--space-22) var(--space-24);margin:0 0 var(--space-26);
+  }
+  .lede p{margin:0;font-size:var(--fs-lead);line-height:var(--lh-base);max-width:92ch}
+  .lede p + p{margin-top:var(--space-12)}
+  .lede .hl{color:var(--accent)}
+
+  .grid{display:grid;gap:var(--space-14)}
+  .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(max-width:920px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+
+  h2{font-size:var(--fs-title-lg);font-weight:var(--fw-semibold);line-height:var(--lh-tight);margin:var(--space-36) 0 var(--space-12);letter-spacing:var(--tracking-tight)}
+  h3{font-size:var(--fs-body-lg);line-height:var(--lh-ui);margin:var(--space-22) 0 var(--space-8);color:var(--text-muted);font-weight:var(--fw-semibold);letter-spacing:var(--tracking-normal)}
+  code{font-family:var(--font-mono);font-size:var(--fs-small);line-height:var(--lh-ui);color:var(--accent);background:color-mix(in srgb, var(--accent) 7%, transparent);padding:var(--space-1) var(--space-5);border-radius: var(--radius-control)}
+  .section-note{color:var(--text-muted);font-size:var(--fs-body);line-height:var(--lh-base);max-width:80ch;margin:0 0 var(--space-16)}
+
+  .data td.mono,.data th.mono{font-family:var(--font-mono)}
+  .scroll{overflow-x:auto;border-radius: var(--radius-panel)}
+
+  pre.code .c{color:var(--text-dim)}
+  pre.code .a{color:var(--accent)}
+  pre.code .w{color:var(--warn)}
+  pre.code .a{color:var(--accent)}
+  pre.code .w{color:var(--warn)}
+
+  /* alt table */
+  .alt-row{display:grid;grid-template-columns:90px 1fr 120px;gap:var(--space-12);align-items:center;
+    padding:var(--space-11) var(--space-14);border-bottom:1px solid var(--line-soft);font-size:var(--fs-body);line-height:var(--lh-ui)}
+  .alt-row:last-child{border-bottom:0}
+  .alt-row .tag{font-family:var(--font-mono);font-weight:var(--fw-medium);color:var(--accent)}
+  .alt-row .fmt{font-family:var(--font-mono);font-size:var(--fs-small)}
+  .alt-row .ep{font-family:var(--font-mono);font-size:var(--fs-small);color:var(--text-muted)}
+  .alt-row.hot{background:color-mix(in srgb, var(--accent) 6%, transparent)}
+  .alt-row.dead{opacity:.64;text-decoration:line-through}
+
+  /* channel matrix */
+  .matrix{display:grid;grid-template-columns:64px repeat(6,1fr);grid-auto-rows:minmax(34px,auto);gap:var(--space-1);background:var(--line);
+    border:1px solid var(--line);border-radius: var(--radius-panel);overflow:hidden;font-size:var(--fs-small);line-height:var(--lh-ui)}
+  .matrix .cell{background:var(--surface);padding:var(--space-8) var(--space-6);text-align:center;font-family:var(--font-mono)}
+  .matrix .head{background:var(--surface-2);color:var(--text-muted);font-size:var(--fs-caption);letter-spacing:var(--tracking-label)}
+  .matrix .side{background:var(--surface-2);color:var(--accent);text-align:left;padding-left:var(--space-10)}
+  .matrix .hit{background:var(--accent-soft-2);color:var(--accent);font-weight:var(--fw-semibold)}
+  .matrix .zero{color:var(--text-dim)}
+
+  /* bars */
+  .bars{display:flex;flex-direction:column;gap:var(--space-9);margin-top:var(--space-6)}
+  .bar-row{display:grid;grid-template-columns:44px 1fr 64px;gap:var(--space-10);align-items:center;font-family:var(--font-mono);font-size:var(--fs-small);line-height:var(--lh-ui);font-variant-numeric:tabular-nums}
+  .bar-track{height:9px;background:var(--surface-inset);border:1px solid var(--line);border-radius: var(--radius-cell);overflow:hidden}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-strong));border-radius: var(--radius-cell)}
+  .bar-fill.warn{background:linear-gradient(90deg,var(--warn),var(--warn-strong))}
+  .bar-val{color:var(--text-muted);text-align:right}
+
+  /* mapping */
+  .map-grid{display:grid;grid-template-columns:1fr 40px 1fr;gap:var(--space-8) var(--space-10);align-items:center;font-family:var(--font-mono);font-size:var(--fs-small);line-height:var(--lh-ui)}
+  .map-grid .src{padding:var(--space-6) var(--space-10);border:1px solid var(--line);border-radius: var(--radius-control);background:var(--surface);color:var(--text-muted)}
+  .map-grid .dst{padding:var(--space-6) var(--space-10);border:1px solid var(--accent-dim);border-radius: var(--radius-control);background:color-mix(in srgb, var(--accent) 6%, transparent);color:var(--accent)}
+  .map-grid .arr{text-align:center;color:var(--text-muted)}
+  .map-note{color:var(--text-muted);font-size:var(--fs-small);line-height:var(--lh-base);margin-top:var(--space-10)}
+
+  /* asset filter */
+  .filters{display:flex;gap:var(--space-6);flex-wrap:wrap;margin:0 0 var(--space-12)}
+
+  /* timeline */
+  .tl{position:relative;margin-top:var(--space-8);padding-left:var(--space-22)}
+  .tl::before{content:"";position:absolute;left:6px;top:4px;bottom:4px;width:1px;background:var(--line)}
+  .tl-item{position:relative;padding:0 0 var(--space-22) var(--space-8)}
+  .tl-item::before{content:"";position:absolute;left:-20px;top:6px;width:9px;height:9px;border-radius:50%;
+    background:var(--surface);border:1px solid var(--accent)}
+  .tl-item.hot::before{background:var(--accent)}
+  .tl-item.bad::before{background:var(--danger);border-color:var(--danger)}
+  .tl-item .when{font-family:var(--font-mono);font-size:var(--fs-caption);line-height:var(--lh-ui);color:var(--text-muted);letter-spacing:var(--tracking-label)}
+  .tl-item .what{font-size:var(--fs-body);line-height:var(--lh-base);margin-top:var(--space-2)}
+  .tl-item .what strong{font-weight:var(--fw-semibold)}
+
+  /* risk */
+  .risk-item{display:grid;grid-template-columns:24px 1fr;gap:var(--space-10);padding:var(--space-13) 0;border-bottom:1px solid var(--line-soft)}
+  .risk-item:last-child{border-bottom:0}
+  .risk-item .mark{font-family:var(--font-mono);color:var(--danger);font-size:var(--fs-body);line-height:var(--lh-ui)}
+  .risk-item .txt{font-size:var(--fs-body);line-height:var(--lh-base)}
+  .risk-item .txt strong{display:block;font-weight:var(--fw-semibold);margin-bottom:var(--space-3)}
+  .risk-item .txt span{color:var(--text-muted)}
+
+  .foot{
+    margin-top:var(--space-48);padding-top:var(--space-18);border-top:1px solid var(--line-soft);
+    color:var(--text-muted);font-size:var(--fs-small);font-family:var(--font-mono);line-height:var(--lh-ui);
+    display:flex;gap:var(--space-18);flex-wrap:wrap;
+  }
+  .foot a{color:var(--text-muted);text-decoration:none;border-bottom:1px dotted var(--line)}
+  .foot a:hover{color:var(--accent)}
+
+  @media(prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="eyebrow">USB 采集卡 · 5.1 声道解锁 · 2026-11</div>
+  <h1>MS2130S<em>_5.1</em>ReverseKit</h1>
+  <p class="sub">一块 MS2130S 采集棒，硬件支持 6 声道，厂商把它藏在 Windows 永远选不到的 <code>alt=3</code> 上。删掉 USB 3.x 配置里的两个 2ch alt，改序列号强制重建端点，就能录到六个独立通道。</p>
+  <div class="badges">
+    <span class="badge ds-tag ds-tag--lg ds-tag--soft is-current">固件 20210624</span>
+    <span class="badge ds-tag ds-tag--lg is-neutral">6ch / 48kHz / 16bit</span>
+    <span class="badge ds-tag ds-tag--lg is-neutral">VID_345F · PID_2132</span>
+    <span class="badge ds-tag ds-tag--lg ds-tag--soft-warn is-warn">通道序 FL FR LFE FC BL BR</span>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="章节">
+  <button class="ds-tab" role="tab" aria-selected="true" data-tab="overview">总览</button>
+  <button class="ds-tab" role="tab" aria-selected="false" data-tab="mechanism">机制</button>
+  <button class="ds-tab" role="tab" aria-selected="false" data-tab="evidence">证据</button>
+  <button class="ds-tab" role="tab" aria-selected="false" data-tab="assets">资产</button>
+  <button class="ds-tab" role="tab" aria-selected="false" data-tab="timeline">时间线</button>
+  <button class="ds-tab" role="tab" aria-selected="false" data-tab="risk">风险</button>
+  <div class="nav-tools">
+    <button class="tool-btn ds-btn ds-btn--tool" id="collapseAll">全部折叠</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ 总览 ============ -->
+<section id="overview" role="tabpanel">
+  <div class="lede">
+    <p>Windows 的 USB Audio 驱动在初始化时只取<span class="hl">一个</span> alternate setting 的格式。原厂固件的音频流接口有 4 个 alt：alt1 是 2ch/24bit/96k，alt2 是 2ch/16bit/48k，<span class="hl">alt3 是 6ch/16bit/48k</span>。Windows 永远选中 alt2，alt3 从未被激活。</p>
+    <p>解法是<span class="hl">让 alt3 成为唯一可选项</span>：只删 USB 3.x 配置里的 alt1、alt2 两个完整块（USB 2.0 配置一个字节不动，作为退路），再把序列号末位改掉，强制 Windows 丢弃缓存的端点格式。不用改描述符文本。改完 37 个字节。</p>
+  </div>
+
+  <div class="grid g4">
+    <div class="metric ds-metric">
+      <div class="k">Firmware</div>
+      <div class="v">98,356</div>
+      <div class="n">字节 · header 0x30 + code 0x18000 + 校验 4B</div>
+    </div>
+    <div class="metric ds-metric">
+      <div class="k">Patch</div>
+      <div class="v">37 B</div>
+      <div class="n">解锁固件与原厂的差异字节数</div>
+    </div>
+    <div class="metric ds-metric">
+      <div class="k">Channels</div>
+      <div class="v">6 ×</div>
+      <div class="n">六段测试各落一个通道，其余通道为 0.0000</div>
+    </div>
+    <div class="metric ds-metric is-warn">
+      <div class="k">XDATA Diff</div>
+      <div class="v">266</div>
+      <div class="n">6ch/2ch 流中稳定差异，63 个连续区</div>
+    </div>
+  </div>
+
+  <h2>当前状态</h2>
+  <div class="scroll">
+    <table class="data ds-table">
+      <tbody>
+        <tr><th style="width:150px">固件</th><td class="mono">ms2130s_51unlock_20210624.bin</td><td>USB3 只留 alt0 + alt3，序列号 20210624</td></tr>
+        <tr><th>端点</th><td class="mono">6ch / 48000 Hz / 16 bit</td><td>Windows 音频端点 <code>{ae66569b-…}</code></td></tr>
+        <tr><th>通道顺序</th><td class="mono">FL, FR, LFE, FC, BL, BR</td><td>第 3、4 位与标准相反，录制后交换 c2/c3</td></tr>
+        <tr><th>视频</th><td class="mono">UVC 未受影响</td><td>1080p60 / 4K120 均可采</td></tr>
+        <tr><th>回退</th><td class="mono">ms2130s_backup.bin</td><td>刷回，序列号还原 20210629</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>三个关键点</h2>
+  <div class="grid g3">
+    <details class="card ds-disclosure">
+      <summary><span class="idx">01</span><span class="t">描述符由硬件读</span><span class="arrow">›</span></summary>
+      <div class="card-body ds-disclosure-body">
+        <p>固件镜像里对 <code>0x0640</code>、<code>0x0A94</code> 等描述符地址的 <code>MOV DPTR,#imm16</code> 引用数是 <strong>0</strong>。USB 描述符由 SIE 从 flash 固定区直接读取，固件只负责初始化与控制。</p>
+        <p>所以改描述符后 Windows 立刻能识别，也解释了为什么改描述符不改变卡实际输出的音频格式。</p>
+      </div>
+    </details>
+    <details class="card ds-disclosure">
+      <summary><span class="idx">02</span><span class="t">固件按 alt 序号查死表</span><span class="arrow">›</span></summary>
+      <div class="card-body ds-disclosure-body">
+        <p>把 alt1 的描述符改成 6ch 再刷，Windows 显示 6 声道，但卡吐出来的仍是 <strong>2ch/24bit/96k</strong> —— 原厂 alt1 的格式。固件不读描述符内容，只按 <code>SET_INTERFACE</code> 的 wValue 查内部写死的表。</p>
+        <p>改描述符只能骗 Windows，骗不过卡。要拿 6 声道，必须让卡真的收到 <code>SET_INTERFACE(alt=3)</code>。</p>
+      </div>
+    </details>
+    <details class="card ds-disclosure">
+      <summary><span class="idx">03</span><span class="t">Windows 只暴露一个 alt</span><span class="arrow">›</span></summary>
+      <div class="card-body ds-disclosure-body">
+        <p>独占模式请求 <code>6ch</code>、<code>8ch</code>、<code>96k</code> 全部返回 <code>0x88890048</code>（不支持），只有 <code>2ch/48k/16</code> 返回 S_OK。</p>
+        <p>所以必须让 alt3 成为唯一可选的 streaming 设置：删掉 alt1、alt2，Windows 别无选择。</p>
+      </div>
+    </details>
+  </div>
+
+  <h2>固件改动</h2>
+  <pre class="code ds-code"><span class="c"># 解锁固件与 backup 的 37 字节差异</span>
+0x0A96        72 → 10                    <span class="c">USB3 配置 wTotalLength 1650 → 1552</span>
+0x1068-0x106E 02 03 18 00 77 01 → 06 02 10 80 BB 00
+0x1064-0x10A3 描述符区重排               <span class="c">删 98 B 后前移，alt3 块补位</span>
+0x1A77        39 → 34                    <span class="c">序列号末位 '9' → '4'（USB2 侧）</span>
+0x1A8C        39 → 34                    <span class="c">序列号末位 '9' → '4'（USB3 侧）</span>
+0x18033       B8 → CA                    <span class="c">代码校验 D9B8 → D9CA</span>
+
+<span class="c"># USB2 配置区 0x0640-0x0A91 一个字节都没动 → 插 USB 2.0 口即可回退</span></pre>
+</section>
+
+<!-- ============ 机制 ============ -->
+<section id="mechanism" role="tabpanel" hidden>
+  <p class="section-note">整件事成立的前提是三层结构：SIE 读描述符、8051 按 alt 查格式表、Windows 只选一个 alt。三层都理解了，做法就只有一个。</p>
+
+  <div class="grid g3" style="margin-bottom:var(--space-22)">
+    <details class="card ds-disclosure" open>
+      <summary><span class="idx">A</span><span class="t">SIE 硬件层</span><span class="hint">描述符在 Flash 里</span><span class="arrow">›</span></summary>
+      <div class="card-body ds-disclosure-body">
+        <p>芯片是 <strong>MS2130S：8051 内核 + 外挂 SPI Flash</strong>。</p>
+        <p>USB 描述符（device / config / interface / endpoint / string）由 SIE 从 flash 固定偏移读取，固件代码不搬运。镜像里搜索 <code>MOV DPTR,#imm16</code> 指向描述符地址，全部 0 引用。</p>
+        <p>所以描述符改动在下次上电时立即生效，不需要固件逻辑配合。</p>
+      </div>
+    </details>
+    <details class="card ds-disclosure">
+      <summary><span class="idx">B</span><span class="t">8051 固件层</span><span class="hint">alt 序号查表</span><span class="arrow">›</span></summary>
+      <div class="card-body ds-disclosure-body">
+        <p>固件收到 <code>SET_INTERFACE</code> 后，按 <strong>alt 序号</strong>查一张写死的格式表：</p>
+        <pre class="code ds-code">alt1 → 2ch / 24bit / 96kHz
+alt2 → 2ch / 16bit / 48kHz
+alt3 → 6ch / 16bit / 48kHz</pre>
+        <p>描述符文本对它没有任何影响。这是“改描述符骗不过卡”的直接原因。</p>
+      </div>
+    </details>
+    <details class="card ds-disclosure">
+      <summary><span class="idx">C</span><span class="t">Windows 主机层</span><span class="hint">只取一个 alt</span><span class="arrow">›</span></summary>
+      <div class="card-body ds-disclosure-body">
+        <p>USB Audio 驱动初始化时只取一个 alternate setting 的格式，并把它缓存到设备实例（实例 ID 由序列号生成）。</p>
+        <p>改了描述符但序列号不变，Windows 会沿用旧端点，看不到新格式。<strong>每次改描述符必须同时改序列号。</strong></p>
+      </div>
+    </details>
+  </div>
+
+  <h2>原厂音频流接口的 4 个 alt</h2>
+  <div style="border:var(--space-1) solid var(--line);border-radius: var(--radius-panel);overflow:hidden;background:var(--surface)">
+    <div class="alt-row"><span class="tag">alt0</span><span class="fmt">零带宽，无端点</span><span class="ep">—</span></div>
+    <div class="alt-row dead"><span class="tag">alt1</span><span class="fmt">2ch / 24bit / 96kHz</span><span class="ep">mps 576 · int 4</span></div>
+    <div class="alt-row dead"><span class="tag">alt2</span><span class="fmt">2ch / 16bit / 48kHz</span><span class="ep">mps 192 · int 4</span></div>
+    <div class="alt-row hot"><span class="tag">alt3</span><span class="fmt">6ch / 16bit / 48kHz</span><span class="ep">mps 576 · int 4</span></div>
+  </div>
+  <p class="section-note" style="margin-top:var(--space-10)">划线的是解锁固件里被删除的两个 alt。alt0 保留（零带宽，主机切换必经），alt3 成为唯一可用的 streaming 设置。</p>
+
+  <h2>两套配置，只改一套</h2>
+  <div class="scroll">
+    <table class="data ds-table">
+      <thead><tr><th>配置</th><th class="mono">偏移</th><th class="mono">wTotalLength</th><th>用途</th><th>解锁时</th></tr></thead>
+      <tbody>
+        <tr><td>USB 2.0 配置</td><td class="mono">0x0640</td><td class="mono">1074 B</td><td>USB 2.0 口 / 全速链路</td><td><span class="status ds-tag is-safe">一个字节不动</span></td></tr>
+        <tr><td>USB 3.x 配置</td><td class="mono">0x0A94</td><td class="mono">1650 → 1552 B</td><td>USB 3.x 口 / 高速链路</td><td><span class="status ds-tag is-current">删 alt1 + alt2</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-note" style="margin-top:var(--space-12)">这是整个方案里最重要的安全设计：USB3 配置改坏导致 Windows 拒绝枚举时，把卡插到 USB 2.0 口，它会走那份没动过的原厂配置，设备照常出现，可以直接刷回原厂。不需要 Linux，不需要编程器。</p>
+
+  <h2>描述符结构（USB 3.x 配置）</h2>
+  <pre class="code ds-code"><span class="c"># 原厂 1650 B</span>
+config 1650 B / 5 interfaces
+  intf 0  alt0  eps 0
+  intf 1  alt0  eps 1   <span class="c"># 视频控制</span>
+  intf 2  alt0  eps 0   <span class="c"># 视频流</span>
+  intf 3  alt0  eps 0   <span class="c"># 音频流</span>
+  intf 3  alt1  eps 1   <span class="c"># 2ch/24bit/96k</span>   <span class="w">← 删除 49 B</span>
+  intf 3  alt2  eps 1   <span class="c"># 2ch/16bit/48k</span>   <span class="w">← 删除 49 B</span>
+  intf 3  alt3  eps 1   <span class="c"># 6ch/16bit/48k</span>   <span class="a">← 保留，成为唯一</span>
+  intf 4  alt0  eps 1   <span class="c"># HID 刷写接口</span>
+
+<span class="c"># 解锁后 1552 B = 1650 - 98</span>
+  intf 3  alt0  eps 0
+  intf 3  alt3  eps 1</pre>
+
+  <h2>为什么不能改 alt1 的声明</h2>
+  <div class="lede" style="border-left-color:var(--warn)">
+    <p>实验 A 把 alt1 声明改成 <code>6ch/16bit/48k</code>，Windows 确实识别成 6 声道，但抓到的数据是 <strong>2ch/24bit/96k 的字节结构</strong>。主机按 16bit 读，把每个 24bit 样本的低 16 位当成一个“声道”，于是 <code>std = 1/√3 = 0.5774</code>。</p>
+    <p>这不是噪声，是字节错位。但它也证明了：<strong>改描述符文本不会改变卡实际发什么</strong>。唯一有效的做法是改变主机选中的 alt。</p>
+  </div>
+</section>
+
+<!-- ============ 证据 ============ -->
+<section id="evidence" role="tabpanel" hidden>
+  <p class="section-note">三条 A 级证据全部在解锁固件下采集，并且用标准库重新算过。判据不是“听感”，是每段音频落在哪个通道、其余通道是否为零。</p>
+
+  <h2>NS2 六喇叭测试：每段只落一个通道</h2>
+  <div class="matrix" style="margin-bottom:var(--space-10)">
+    <div class="cell head"></div>
+    <div class="cell head">L</div><div class="cell head">C</div><div class="cell head">R</div>
+    <div class="cell head">SR</div><div class="cell head">SL</div><div class="cell head">SW</div>
+
+    <div class="cell side">ch0</div>
+    <div class="cell hit">●</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div>
+
+    <div class="cell side">ch1</div>
+    <div class="cell zero">·</div><div class="cell zero">·</div><div class="cell hit">●</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div>
+
+    <div class="cell side">ch2</div>
+    <div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell hit">●</div>
+
+    <div class="cell side">ch3</div>
+    <div class="cell zero">·</div><div class="cell hit">●</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div>
+
+    <div class="cell side">ch4</div>
+    <div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell hit">●</div><div class="cell zero">·</div>
+
+    <div class="cell side">ch5</div>
+    <div class="cell zero">·</div><div class="cell zero">·</div><div class="cell zero">·</div><div class="cell hit">●</div><div class="cell zero">·</div><div class="cell zero">·</div>
+  </div>
+  <div class="scroll">
+    <table class="data ds-table">
+      <thead><tr><th>NS2 顺序</th><th>语义</th><th>实测时间</th><th class="mono">落点</th><th class="mono">RMS</th><th>其余五通道</th></tr></thead>
+      <tbody>
+        <tr><td>L</td><td>FL</td><td class="mono">59.75–62.75 s</td><td class="mono">ch0</td><td class="mono">0.046–0.067</td><td class="mono">0.0000</td></tr>
+        <tr><td>C</td><td>FC</td><td class="mono">64.00–66.75 s</td><td class="mono">ch3</td><td class="mono">0.055–0.061</td><td class="mono">0.0000</td></tr>
+        <tr><td>R</td><td>FR</td><td class="mono">68.00–70.75 s</td><td class="mono">ch1</td><td class="mono">0.054–0.062</td><td class="mono">0.0000</td></tr>
+        <tr><td>SR</td><td>BR</td><td class="mono">72.00–75.00 s</td><td class="mono">ch5</td><td class="mono">0.034–0.064</td><td class="mono">0.0000</td></tr>
+        <tr><td>SL</td><td>BL</td><td class="mono">76.00–79.00 s</td><td class="mono">ch4</td><td class="mono">0.041–0.064</td><td class="mono">0.0000</td></tr>
+        <tr><td>SW</td><td>LFE</td><td class="mono">80.00–83.00 s</td><td class="mono">ch2</td><td class="mono">0.037–0.063</td><td class="mono">0.0000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-note" style="margin-top:var(--space-10)">源文件 <code>captures/evidence/ns2_51_unlocked_test.wav</code>，119.96 s，6ch/48k/float32。段落边界按 0.25 s 分块、阈值 0.02 得出，与简报的 59.8–63.0 等略有差异，落点通道不受影响。</p>
+
+  <h2>游戏片段：六通道都有真实信号</h2>
+  <div class="bars">
+    <div class="bar-row"><span>ch0</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">0.0173</span></div>
+    <div class="bar-row"><span>ch1</span><div class="bar-track"><div class="bar-fill" style="width:67%"></div></div><span class="bar-val">0.0116</span></div>
+    <div class="bar-row"><span>ch2</span><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><span class="bar-val">0.0023</span></div>
+    <div class="bar-row"><span>ch3</span><div class="bar-track"><div class="bar-fill" style="width:54%"></div></div><span class="bar-val">0.0093</span></div>
+    <div class="bar-row"><span>ch4</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span class="bar-val">0.0104</span></div>
+    <div class="bar-row"><span>ch5</span><div class="bar-track"><div class="bar-fill" style="width:21%"></div></div><span class="bar-val">0.0037</span></div>
+  </div>
+  <p class="section-note" style="margin-top:var(--space-10)">源文件 <code>game_51_unlocked_5s.wav</code>，4.97 s。六通道非静音占比均 95% 以上。</p>
+
+  <h2>通道映射：FC 与 LFE 对调</h2>
+  <div class="grid g2">
+    <div>
+      <h3 style="margin-top:0">可控源标定（笔记本 HDMI）</h3>
+      <div class="map-grid">
+        <div class="src">FL · 100 Hz</div><div class="arr">→</div><div class="dst">ch0</div>
+        <div class="src">FR · 100 Hz</div><div class="arr">→</div><div class="dst">ch1</div>
+        <div class="src">FC · 100 Hz</div><div class="arr">→</div><div class="dst">ch3</div>
+        <div class="src">LFE · 100 Hz</div><div class="arr">→</div><div class="dst">ch2</div>
+        <div class="src">BL · 100 Hz</div><div class="arr">→</div><div class="dst">ch4</div>
+        <div class="src">BR · 100 Hz</div><div class="arr">→</div><div class="dst">ch5</div>
+      </div>
+      <p class="map-note">录音 <code>chmap_stereo_probe_sample.wav</code>，13.00 s。名字里的 stereo 是误称。</p>
+    </div>
+    <div>
+      <h3 style="margin-top:0">卡的实际顺序 vs 标准 5.1</h3>
+      <pre class="code ds-code">卡      FL, FR, LFE, FC, BL, BR
+标准    FL, FR, FC, LFE, BL, BR
+                  ↑   ↑
+                交换 c2 / c3</pre>
+      <p class="map-note">修复命令：<code>pan=5.1|c0=c0|c1=c1|c2=c3|c3=c2|c4=c4|c5=c5</code>。重排后标定序列从 <code>[0,3,1,5,4,2]</code> 变成 <code>[0,1,2,3,4,5]</code>。</p>
+    </div>
+  </div>
+
+  <h2>为什么早期判断“SRAM 噪声”是错的</h2>
+  <div class="scroll">
+    <table class="data ds-table">
+      <thead><tr><th>假设</th><th>切法</th><th class="mono">lag-1 自相关</th><th>结论</th></tr></thead>
+      <tbody>
+        <tr><td>H1</td><td>6ch / 16bit LE</td><td class="mono">0.790 0.016 0.999 0.790 0.054 0.999</td><td>部分通道不连续</td></tr>
+        <tr><td>H3</td><td>2ch / 24bit LE @96k</td><td class="mono">0.999 0.999</td><td>全部连续</td></tr>
+        <tr><td>H6</td><td>4ch / 24bit LE @48k</td><td class="mono">0.999 0.999 0.999 0.999</td><td>全部连续</td></tr>
+        <tr><td>H2/H6</td><td>大端假设</td><td class="mono">≈ 0.05</td><td>全部不连续</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-note" style="margin-top:var(--space-10)">H3 和 H6 是同一批字节的两种切法（12 字节 = 4 个 24bit 样本 = 2 帧立体声），都给出完美连续性。说明卡在“6ch 状态”下实际发的是 24bit 样本，主机按 16bit 读，低 16 位被当成独立声道。`0.5772` 是数学必然，不是随机垃圾。</p>
+</section>
+
+<!-- ============ 资产 ============ -->
+<section id="assets" role="tabpanel" hidden>
+  <p class="section-note">按角色筛选。状态含义：当前使用 / 安全 / 实验 / 证据 / 历史 / 危险。</p>
+  <div class="filters" id="assetFilters">
+    <button class="ds-chip ds-chip--mono" data-f="all" aria-pressed="true">全部</button>
+    <button class="ds-chip ds-chip--mono" data-f="firmware" aria-pressed="false">固件</button>
+    <button class="ds-chip ds-chip--mono" data-f="rec" aria-pressed="false">录音</button>
+    <button class="ds-chip ds-chip--mono" data-f="dump" aria-pressed="false">XDATA</button>
+    <button class="ds-chip ds-chip--mono" data-f="script" aria-pressed="false">脚本</button>
+  </div>
+  <div class="scroll">
+    <table class="data ds-table" id="assetTable">
+      <thead><tr><th style="width:270px">文件</th><th style="width:74px">类型</th><th style="width:90px">状态</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr data-k="firmware"><td class="mono">firmware/release/ms2130s_51unlock_20210624.bin</td><td>固件</td><td><span class="status ds-tag is-current">当前使用</span></td><td>USB3 只留 alt0+alt3，序列号 20210624，37 B 改动</td></tr>
+        <tr data-k="firmware"><td class="mono">firmware/release/ms2130s_backup.bin</td><td>固件</td><td><span class="status ds-tag is-safe">回退基准</span></td><td>原厂 2025-08-26，序列号 20210629，SHA-256 69DD471F…</td></tr>
+        <tr data-k="firmware"><td class="mono">firmware/experiments/ms2130s_6ch_patch.bin</td><td>固件</td><td><span class="status ds-tag is-exp">实验</span></td><td>alt1 改 6ch + 掩码 0x3F，实验 A 中间版本</td></tr>
+        <tr data-k="firmware"><td class="mono">firmware/experiments/ms2130s_all6ch.bin</td><td>固件</td><td><span class="status ds-tag is-exp">实验</span></td><td>alt1/alt2 都改 6ch，抓到的是字节错位</td></tr>
+        <tr data-k="firmware"><td class="mono">firmware/experiments/ms2130s_all6ch_v2.bin</td><td>固件</td><td><span class="status ds-tag is-exp">实验</span></td><td>同 all6ch，序列号 20210621</td></tr>
+        <tr data-k="firmware"><td class="mono">firmware/experiments/ms2130s_marker_serial.bin</td><td>固件</td><td><span class="status ds-tag is-exp">实验</span></td><td>6ch_patch + 序列号 20210620，实例缓存对照</td></tr>
+        <tr data-k="firmware"><td class="mono">firmware/danger/ms2130s_alt3only.bin</td><td>固件</td><td><span class="status ds-tag is-danger">禁止刷</span></td><td>把 bNumEndpoints 置 0 保留端点，变砖固件，lint 4 错</td></tr>
+
+        <tr data-k="rec"><td class="mono">captures/evidence/ns2_51_unlocked_test.wav</td><td>录音</td><td><span class="status ds-tag is-evidence">证据 A</span></td><td>119.96 s，六喇叭测试，六段各落一个通道</td></tr>
+        <tr data-k="rec"><td class="mono">captures/evidence/game_51_unlocked_5s.wav</td><td>录音</td><td><span class="status ds-tag is-evidence">证据 A</span></td><td>4.97 s，游戏 5.1，六通道 RMS 起伏真实</td></tr>
+        <tr data-k="rec"><td class="mono">captures/evidence/chmap_stereo_probe_sample.wav</td><td>录音</td><td><span class="status ds-tag is-evidence">证据 A</span></td><td>13.00 s，100 Hz 逐通道标定，证明 FC/LFE 对调</td></tr>
+        <tr data-k="rec"><td class="mono">captures/archive/capture6ch.wav 等 10 段</td><td>录音</td><td><span class="status ds-tag is-legacy">历史</span></td><td>实验 A 早期抓取，结果已被第 11 节修正</td></tr>
+        <tr data-k="rec"><td class="mono">captures/archive/stock_check.wav</td><td>录音</td><td><span class="status ds-tag is-safe">对照</span></td><td>原厂无音源，双通道 RMS 0.000</td></tr>
+        <tr data-k="rec"><td class="mono">captures/archive/test6ch.wav</td><td>录音</td><td><span class="status ds-tag is-legacy">对照</span></td><td>6ch/44.1k，虚拟声卡，不是采集卡</td></tr>
+        <tr data-k="rec"><td class="mono">captures/archive/vac_control.wav</td><td>录音</td><td><span class="status ds-tag is-legacy">对照</span></td><td>8ch/48k，VAC 回环</td></tr>
+        <tr data-k="rec"><td class="mono">captures/video/unlocked_video_frame.png</td><td>视频帧</td><td><span class="status ds-tag is-evidence">证据 A</span></td><td>1080p 抓帧，证明 UVC 通路未受影响</td></tr>
+
+        <tr data-k="dump"><td class="mono">registers/batch-2026-11-14/xdata_6ch_streaming.bin</td><td>XDATA</td><td><span class="status ds-tag is-evidence">证据</span></td><td>11-14 01:31，解锁 6ch 流中，第 18 节 A</td></tr>
+        <tr data-k="dump"><td class="mono">registers/batch-2026-11-14/xdata_2ch_streaming.bin</td><td>XDATA</td><td><span class="status ds-tag is-evidence">证据</span></td><td>11-14 01:35，原厂 2ch 流中，第 18 节 B</td></tr>
+        <tr data-k="dump"><td class="mono">registers/batch-2026-11-14/xdata_2ch_streaming_b.bin</td><td>XDATA</td><td><span class="status ds-tag is-legacy">噪声底</span></td><td>11-14 01:37，B 状态复测，8 个动态位</td></tr>
+        <tr data-k="dump"><td class="mono">registers/batch-2026-11-13/xd_full.bin / xd_stock.bin / xd_stock2.bin</td><td>XDATA</td><td><span class="status ds-tag is-legacy">历史</span></td><td>11-13 早期批次，第 9 节用，不能与 11-14 批次混比</td></tr>
+        <tr data-k="dump"><td class="mono">registers/batch-2026-11-13/xd_f000.bin</td><td>XDATA</td><td><span class="status ds-tag is-legacy">片段</span></td><td>只有 256 B，覆盖 0xF000–0xF0FF</td></tr>
+
+        <tr data-k="script"><td class="mono">tooling/reverse/uac_desc_lint.py</td><td>脚本</td><td><span class="status ds-tag is-current">刷前必跑</span></td><td>描述符合法性检查，alt3only 会被报 4 错</td></tr>
+        <tr data-k="script"><td class="mono">tooling/reverse/mk_alt3_usb3only.py</td><td>脚本</td><td><span class="status ds-tag is-current">生成解锁</span></td><td>按描述符结构解析，不依赖固定偏移</td></tr>
+        <tr data-k="script"><td class="mono">tooling/reverse/ms213x_restore.py</td><td>脚本</td><td><span class="status ds-tag is-safe">救砖</span></td><td>Linux usbfs，纯标准库，擦除前校验 magic+校验和</td></tr>
+        <tr data-k="script"><td class="mono">tooling/reverse/ms213x_uac_tool.py</td><td>脚本</td><td><span class="status ds-tag is-safe">扫描/打补丁</span></td><td>patch 只改 bNrChannels 与包长，不修校验和</td></tr>
+        <tr data-k="script"><td class="mono">tooling/reverse/ms213x_dump.ps1</td><td>脚本</td><td><span class="status ds-tag is-safe">读 Flash</span></td><td>HID 只读，协议来自 steve-m/ms213x_flash</td></tr>
+        <tr data-k="script"><td class="mono">tooling/reverse/ms213x_regs.ps1 / ms213x_xdata.ps1</td><td>脚本</td><td><span class="status ds-tag is-safe">读寄存器</span></td><td>xdata 的 -Out 默认改为脚本同目录，批量建议显式传</td></tr>
+        <tr data-k="script"><td class="mono">tooling/capture/rec51.ps1</td><td>脚本</td><td><span class="status ds-tag is-current">录制 5.1</span></td><td>只挑 6ch 端点，WASAPI 写 float32 WAV</td></tr>
+        <tr data-k="script"><td class="mono">tooling/ops/server.py /api/fix</td><td>脚本</td><td><span class="status ds-tag is-current">重排</span></td><td>ffmpeg pan 交换 c2/c3，视频流 copy</td></tr>
+        <tr data-k="script"><td class="mono">tooling/reverse/patch_alt3.py</td><td>脚本</td><td><span class="status ds-tag is-danger">危险</span></td><td>变砖补丁，保留作反面教材，不要运行</td></tr>
+        <tr data-k="script"><td class="mono">tooling/analysis/wav_scan.py 等 3 个</td><td>脚本</td><td><span class="status ds-tag is-safe">已修复</span></td><td>路径按脚本位置推导到 captures，numpy 2.5.4 由启动脚本装进 runtime/venv</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 时间线 ============ -->
+<section id="timeline" role="tabpanel" hidden>
+  <p class="section-note">从第一次改描述符到 5.1 解锁，再到变砖与救回，最后是整理与重构。时间取自文件时间戳与简报记录。</p>
+  <div class="tl">
+    <div class="tl-item hot">
+      <div class="when">11-13 05:46</div>
+      <div class="what"><strong>实验 A 与早期 dump</strong>：改 alt1 声明为 6ch、掩码 0x09B5/0x1031 置 0x3F，抓到“6 声道”数据，误判为 SRAM 噪声。留下 5 个实验固件与 xd_full / xd_stock / xd_stock2。</div>
+    </div>
+    <div class="tl-item hot">
+      <div class="when">11-13 夜</div>
+      <div class="what"><strong>字节级分析推翻旧结论</strong>：H3/H6 假设下 lag-1 = 0.999，证明是 24bit 样本被 16bit 读取，不是空内存。同时确认固件按 alt 序号查格式表。</div>
+    </div>
+    <div class="tl-item bad">
+      <div class="when">11-13 20:58</div>
+      <div class="what"><strong>变砖</strong>：patch_alt3.py 把 alt1/alt2 的 bNumEndpoints 置 0 但保留端点。Windows 报 <code>USB\CONFIGURATION_DESCRIPTOR_VALIDATION_FAILURE</code>，HID 刷写通道一起消失。</div>
+    </div>
+    <div class="tl-item">
+      <div class="when">11-13 21:07 — 21:30</div>
+      <div class="what"><strong>lint 与 WinPE 方案</strong>：写出 uac_desc_lint.py；准备 stick/ 下的 WinPE 一键恢复。</div>
+    </div>
+    <div class="tl-item">
+      <div class="when">11-13 深夜</div>
+      <div class="what"><strong>Linux 救砖成功</strong>：ms213x_restore.py 通过 usbfs 直接发 HID 控制传输，刷回原厂，cmp 全等。约 1 分钟，比 Windows 的 6 分钟快。</div>
+    </div>
+    <div class="tl-item hot">
+      <div class="when">11-14 00:02</div>
+      <div class="what"><strong>解锁固件生成</strong>：mk_alt3_usb3only.py 删除 USB3 的 alt1/alt2 整块，wTotalLength 1650→1552，序列号改 20210624。</div>
+    </div>
+    <div class="tl-item hot">
+      <div class="when">11-14 00:09 — 00:12</div>
+      <div class="what"><strong>5.1 验证</strong>：NS2 六喇叭测试录到 119.96 s，六段各落一个通道，其余为零；游戏片段六通道 RMS 真实起伏。视频帧 1080p 正常。</div>
+    </div>
+    <div class="tl-item hot">
+      <div class="when">11-14 01:19</div>
+      <div class="what"><strong>通道映射标定</strong>：笔记本 HDMI 输出 100 Hz 逐通道文件，录到 <code>[0,1,3,2,4,5]</code>，确认卡顺序 FL,FR,LFE,FC,BL,BR，FC/LFE 对调。</div>
+    </div>
+    <div class="tl-item">
+      <div class="when">11-14 01:31 — 01:37</div>
+      <div class="what"><strong>三态 XDATA 对照</strong>：6ch 流中 / 2ch 流中 / 2ch 复测，得 266 个稳定差异、63 个连续区，未找到可编程通道映射。</div>
+    </div>
+    <div class="tl-item">
+      <div class="when">11-14 02:05</div>
+      <div class="what"><strong>文档定稿</strong>：逆向简报 20 节、对外解锁指南 10 节。</div>
+    </div>
+    <div class="tl-item hot">
+      <div class="when">11-14 17:42</div>
+      <div class="what"><strong>第一次整理</strong>：核对 7 个固件校验和、跑 7 次 lint、复算两轮 XDATA 差量、复算三段关键录音；新增 README、资产清单、核对记录与本页。</div>
+    </div>
+    <div class="tl-item">
+      <div class="when">11-16</div>
+      <div class="what"><strong>重构</strong>：目录按 release/experiments/danger、两批 dump、evidence/archive 分层；工具收进 <code>tooling/</code>；原始简报拆成 7 份主题文档，原文移入 <code>docs/archive</code>；修复 analysis 脚本与失效路径。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 风险 ============ -->
+<section id="risk" role="tabpanel" hidden>
+  <p class="section-note">这次变砖的根因不是技术难点，是把“文件完整性”当成了“描述符合法性”。下面五条是拿一次变砖换来的。</p>
+
+  <div style="border:var(--space-1) solid var(--line);background:var(--surface);border-radius: var(--radius-panel);padding:var(--space-6) var(--space-20)">
+    <div class="risk-item">
+      <div class="mark">01</div>
+      <div class="txt"><strong>改动分级：格式字段可以试，结构关系不能试。</strong><span>只改 bNrChannels、序列号、掩码、校验和 → 最坏情况设备仍能枚举，可反复试。改 bNumEndpoints、增删描述符 → 单向操作，失败会连带摧毁唯一恢复通道。</span></div>
+    </div>
+    <div class="risk-item">
+      <div class="mark">02</div>
+      <div class="txt"><strong>刷前必须过 lint。</strong><span>uac_desc_lint.py 模拟主机解析器，按 bLength 走一遍配置描述符，检查 bNumEndpoints 与实际端点数。原厂 0 错；alt3only 报 4 错。这 30 行代码是上次事故唯一缺失的一环。</span></div>
+    </div>
+    <div class="risk-item">
+      <div class="mark">03</div>
+      <div class="txt"><strong>能不改固件就不改。</strong><span>运行时用控制传输能验证的，先验证。本轮该先做的是在 Linux 里发一次 SET_INTERFACE(alt=3)，这是只读实验，零变砖风险。</span></div>
+    </div>
+    <div class="risk-item">
+      <div class="mark">04</div>
+      <div class="txt"><strong>每次改描述符必须同时改序列号。</strong><span>Windows 按设备实例缓存音频端点格式，实例按序列号生成。不改序列号，读到的还是旧格式。</span></div>
+    </div>
+    <div class="risk-item">
+      <div class="mark">05</div>
+      <div class="txt"><strong>刷完必须真断电。</strong><span>拔卡身上的 USB 头，等 10 秒。拔 HUB 到电脑那根线不算断电 —— 带电源适配器的 HUB 仍会给下行口供电，芯片不会重启。</span></div>
+    </div>
+  </div>
+
+  <h2>变砖与救砖</h2>
+  <div class="grid g2" style="margin-top:var(--space-6)">
+    <div class="lede" style="border-left-color:var(--danger);margin:0">
+      <p><strong style="color:var(--text-danger)">症状</strong></p>
+      <pre class="code ds-code" style="margin-top:var(--space-6)">Unknown USB Device (Invalid Configuration Descriptor)
+InstanceId  USB\VID_0000&amp;PID_0006\...
+HardwareIds USB\CONFIGURATION_DESCRIPTOR_VALIDATION_FAILURE
+ProblemCode 43</pre>
+      <p style="margin-top:var(--space-10)">没有 VID/PID → Zadig / WinUSB / usbipd 都枚举不到；没有接口 → 没有 HID → ms213x_flash.exe 找不到设备。Windows 侧完全无解。</p>
+    </div>
+    <div class="lede" style="border-left-color:var(--ok);margin:0">
+      <p><strong style="color:var(--ok)">Linux 救砖</strong></p>
+      <p style="margin-top:var(--space-6)">Linux 的 USB 核对不一致描述符只警告并忽略多余端点，设备照常注册。于是可以用 <code>/dev/bus/usb</code> + <code>USBDEVFS_CONTROL</code> 直接发 HID 类控制传输：</p>
+      <pre class="code ds-code" style="margin-top:var(--space-6)">cd /sys/bus/usb/drivers/usbhid
+echo -n *:1.4 | sudo tee unbind
+sudo python3 ms213x_restore.py probe
+sudo python3 ms213x_restore.py restore ms2130s_backup.bin</pre>
+      <p style="margin-top:var(--space-10)">成功标志：<code>claim interface 4: ok</code>、<code>header magic 3C C3 -> OK</code>，最后 <code>cmp -l</code> 核对 98356 字节全等。约 1 分钟。</p>
+    </div>
+  </div>
+
+  <h2>回退路径</h2>
+  <div class="scroll">
+    <table class="data ds-table">
+      <thead><tr><th>场景</th><th>操作</th><th>代价</th></tr></thead>
+      <tbody>
+        <tr><td>只想退回 2ch</td><td>把卡插到 USB 2.0 口</td><td>走未改动的原厂配置，不损坏，换回 USB3 口即恢复 6ch</td></tr>
+        <tr><td>想完全回原厂</td><td><code>tooling\flash\ms213x_flash.exe -w firmware\release\ms2130s_backup.bin</code></td><td>约 6 分钟，序列号还原 20210629</td></tr>
+        <tr><td>USB3 配置改坏、Windows 不认</td><td>插 USB 2.0 口 → 枚举恢复 → 刷回原厂</td><td>不需要 Linux</td></tr>
+        <tr><td>整个配置描述符非法、连 USB2 也不认</td><td>Linux 启动盘 + ms213x_restore.py</td><td>约 10 分钟准备，1 分钟刷写</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>当前未解</h2>
+  <div class="scroll">
+    <table class="data ds-table">
+      <thead><tr><th>问题</th><th>现状</th></tr></thead>
+      <tbody>
+        <tr><td>固件内修正 FC/LFE 顺序</td><td>不可行。266 个稳定差异中没有任何寄存器呈现 6 路排列表结构；顺序很可能写死在 DMA 描述符或 I2S 布线里，没有运行时交换位</td></tr>
+        <tr><td>AC 终端掩码改 0x3F</td><td>未做。改了只影响应用侧“标签”，不影响数据，且实测会报 0xF03 异常掩码，收益不明</td></tr>
+        <tr><td>长时间录制压测</td><td>最长实测 130 秒，未做数小时压测</td></tr>
+        <tr><td>HDMI 分配器方案</td><td>用户计划用分配器同时接显示器与采集卡，未验证</td></tr>
+        <tr><td>0x24DC 头部校验算法</td><td>未复现。简单求和得 0x262A，不是 0x24DC。刷写工具是否校验它、怎么校验，未确认</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="foot">
+  <span>MS2130S · VID_345F/PID_2132</span>
+  <span>整理 2026-11-14 · 重构 2026-11-16</span>
+  <a href="资产清单.md">资产清单</a>
+  <a href="核对记录.md">核对记录</a>
+  <a href="archive/MS2130S_5.1_逆向简报.md">逆向简报</a>
+  <a href="MS2130S_5.1_解锁指南.md">解锁指南</a>
+</div>
+
+</main>
+
+<script type="module">
+  const tabs = [...document.querySelectorAll('nav.tabs [role="tab"]')];
+  const panels = [...document.querySelectorAll('main [role="tabpanel"]')];
+
+  function selectTab(name, focus = false) {
+    for (const t of tabs) {
+      const on = t.dataset.tab === name;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    }
+    for (const p of panels) p.hidden = p.id !== name;
+    if (history.replaceState) history.replaceState(null, '', '#' + name);
+  }
+
+  for (const t of tabs) {
+    t.addEventListener('click', () => selectTab(t.dataset.tab));
+    t.addEventListener('keydown', (e) => {
+      const i = tabs.indexOf(t);
+      if (e.key === 'ArrowRight') { e.preventDefault(); selectTab(tabs[(i + 1) % tabs.length].dataset.tab, true); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); selectTab(tabs[(i - 1 + tabs.length) % tabs.length].dataset.tab, true); }
+      if (e.key === 'Home') { e.preventDefault(); selectTab(tabs[0].dataset.tab, true); }
+      if (e.key === 'End') { e.preventDefault(); selectTab(tabs[tabs.length - 1].dataset.tab, true); }
+    });
+  }
+
+  const initial = location.hash.slice(1);
+  if (panels.some(p => p.id === initial)) selectTab(initial);
+
+  const collapseBtn = document.getElementById('collapseAll');
+  collapseBtn.addEventListener('click', () => {
+    const cards = [...document.querySelectorAll('details.card')];
+    const anyOpen = cards.some(d => d.open);
+    for (const d of cards) d.open = !anyOpen;
+    collapseBtn.textContent = anyOpen ? '全部展开' : '全部折叠';
+  });
+
+  const filters = document.getElementById('assetFilters');
+  const rows = [...document.querySelectorAll('#assetTable tbody tr')];
+  filters.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    for (const b of filters.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === btn));
+    const f = btn.dataset.f;
+    for (const r of rows) r.hidden = f !== 'all' && r.dataset.k !== f;
+  });
+</script>
+</body>
+</html>

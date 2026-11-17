@@ -1,0 +1,74 @@
+{
+  "server": {
+    "port": 8765,
+    "port_span": 5,
+    "idle_timeout_minutes": 30
+  },
+  "workspace": {
+    "runtime": "runtime",
+    "recordings": "captures/recordings",
+    "fixed": "captures/fixed"
+  },
+  "device": {
+    "vid": "345F",
+    "pid": "2132",
+    "product": "USB3 PLUS",
+    "channels": 6,
+    "sample_rate": 48000,
+    "sample_format": "float32",
+    "capture_api": "WASAPI",
+    "channel_labels": ["FL", "FR", "LFE", "FC", "BL", "BR"],
+    "channel_labels_fixed": ["FL", "FR", "FC", "LFE", "BL", "BR"],
+    "channel_colors": ["#46e0c0", "#63b3ed", "#f6c453", "#f0a35e", "#68d391", "#f687b3"],
+    "level_display_gain": 10,
+    "flash_estimate_sec": 360,
+    "flash_blocks": 32,
+    "signal_window_sec": 0.25,
+    "poll_ms": 800,
+    "device_cache_sec": 120,
+    "max_record_sec": 3600,
+    "min_record_sec": 5,
+    "record_default_sec": 60,
+    "record_presets_sec": [30, 60, 120, 300],
+    "verify_record_sec": 5
+  },
+  "analysis": {
+    "active_rms": 0.0001,
+    "silence_rms": 0.00001,
+    "min_active_channels": 6,
+    "duplicate_tolerance": 0.0001
+  },
+  "snapshot": {
+    "baseline": "firmware/release/ms2130s_backup.bin"
+  },
+  "regress": {
+    "skip_dirs": [".git", "__pycache__", "runs", "runtime", "dist", "recordings", "fixed", "node_modules", ".venv"],
+    "critical_paths": [
+      "操作台.html",
+      "design-tokens.css",
+      "components.css",
+      "tooling/ops/server.py",
+      "tooling/ops/verify_wav.py",
+      "tooling/ops/regress.py",
+      "tooling/ops/ops_config.json",
+      "tooling/capture/rec51.ps1",
+      "tooling/flash/ms213x_flash.exe",
+      "firmware/release/ms2130s_backup.bin"
+    ]
+  },
+  "docs": [
+    {"path": "README.md", "label": "项目入口", "sub": "根 README", "hidden": true},
+    {"path": "docs/01-结论与机制.md", "label": "01 结论与机制", "sub": "先读这一份", "hidden": true},
+    {"path": "docs/02-固件与描述符.md", "label": "02 固件与描述符", "sub": "结构 · 血统", "hidden": true},
+    {"path": "docs/03-解锁与验证.md", "label": "03 解锁与验证", "sub": "刷写 · OBS", "hidden": true},
+    {"path": "docs/04-通道映射与证据.md", "label": "04 通道映射", "sub": "录音 · XDATA", "hidden": true},
+    {"path": "docs/05-变砖与救砖.md", "label": "05 变砖与救砖", "sub": "Linux usbfs", "hidden": true},
+    {"path": "docs/06-资产与复现.md", "label": "06 资产与复现", "sub": "命令 · 依赖", "hidden": true},
+    {"path": "docs/资产清单.md", "label": "资产清单", "sub": "逐文件角色", "hidden": true},
+    {"path": "docs/核对记录.md", "label": "核对记录", "sub": "复算 · 勘误", "hidden": true},
+    {"path": "docs/项目全景.html", "label": "项目全景", "sub": "六页交互", "hidden": true},
+    {"path": "docs/MS2130S_5.1_解锁指南.md", "label": "解锁指南", "sub": "对外分享版", "hidden": true},
+    {"path": "docs/07-优化方案.md", "label": "07 优化方案", "sub": "痛点 · 路线", "hidden": true},
+    {"path": "docs/README.md", "label": "文档索引", "sub": "全部文档"}
+  ]
+}
